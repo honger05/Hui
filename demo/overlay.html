@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demostrate Overlay</title>
+	<style>
+	  .parent{
+      position:relative;
+      float:right;
+	  }
+	  .example {
+      color: #fff;
+      background-color: #89c237;
+      display:inline-block;
+	  }
+	  .cell {
+	    margin: 100px 200px;
+	  }
+	</style>
+</head>
+<body>
+	
+	<div class="cell">
+    <h2>基本浮层 目标元素1 模板生成</h2>
+    <div id="c"></div>
+    <div id="a" class="example">基准元素1</div>
+  </div>
+
+  <div class="cell">
+    <h2 style="color: #89c237">全局定位浮层 目标元素2</h2>
+    <div id="b" class="example"><p style="line-height: 180px; text-align:center">
+    	目标元素2
+    </p></div>
+  </div>
+
+  <div class="cell">
+    <h2>单例组件，修改后全部 Mask 都生效。</h2>
+    <button id="a_btn">点击显示默认遮罩层, 按 ESC 或 点击遮罩层 退出</button>
+    <button id="b_btn">点击显示修改的遮罩层</button>
+  </div>
+
+
+  <div class="cell">
+    <h2>点击文档其他地方隐藏自身</h2>
+
+    <div id="d1_trigger" style="width:150px;height:30px;background:#ccc;">
+    	点击我显隐元素3
+    </div>
+    <div id="d1" class="example">
+    	目标元素3，点击页面空白处我会消失
+    </div>
+
+    <div id="d2_trigger" style="width:150px;height:30px;background:#e80;color:#fff;">
+    	点击我显隐元素4
+    </div>
+    <div id="d2" class="example">
+    	目标元素4，点击页面空白处我会消失
+    </div>
+  </div>
+
+	<script src="../dist/lib/jquery.js"></script>
+	<script src="../dist/core-debug.js"></script>
+	<script src="../dist/hui-debug.js"></script>
+
+	<script>
+	var Overlay = Hui.Overlay;
+	var mask = Hui.Mask;
+
+
+	var o = new Overlay({
+		template: '<div class="overlay"><p>目标元素1</p></div>',
+		parentNode: '#c',
+		id: 'myoverlay',
+		style: {
+			color: 'blue'
+		},
+		align: {
+			selfXY: [0, 0],
+			baseElement: '#a',
+			baseXY: ['100% + 20px', 0]
+		}
+	})
+
+	o.show()
+	o.set('style', {
+		backgroundColor: '#f53379'
+	})
+	o.set('height', 40)
+
+	var o2 = new Overlay({
+		element: '#b',
+		width: 200,
+		height: 200,
+		align: {
+			selfXY: ['50%', '50%'],
+			baseXY: ['50%', '50%']
+		}
+	})
+
+	o2.show();
+
+	// 全局遮罩Mask组件示例
+	// 单例组件，修改后全部 Mask 都生效。
+	$('#a_btn').click(function() {
+	    mask.show();
+	});
+
+	// mask 不应该主动消失，通常是被动消失
+	$(document).keyup(function(e) {
+	    // keyboard esc
+	    if (e.keyCode === 27) {
+	        mask.hide();
+	    }
+	});
+
+	$('#b_btn').click(function() {
+	    mask.set('backgroundColor', 'green')
+	    		.set('opacity', '0.3')
+	    		.show();
+	});
+
+
+	/**
+	 * 使用 Overlay 实现一个 Popup
+	 */
+	var TestPopup = Overlay.extend({
+		attrs: {
+			trigger: null
+		},
+
+		setup: function() {
+			var that = this;
+			TestPopup.superclass.setup.call(this);
+			this._setPosition();
+			$(this.get('trigger')).on('click', function() {
+				that.show();
+			});
+			this.element.hide();
+			this._blurHide([this.get('trigger')]);
+		}
+	})
+
+	new TestPopup({
+    trigger: '#d1_trigger',
+    element: '#d1',
+    align: {
+      baseElement: '#d1_trigger',
+      baseXY: ['100%', 0]
+    }
+	})
+
+	new TestPopup({
+    trigger: '#d2_trigger',
+    element: '#d2',
+    align: {
+      baseElement: '#d2_trigger',
+      baseXY: ['100%', 0]
+    }
+	})
+	</script>
+</body>
+</html>
