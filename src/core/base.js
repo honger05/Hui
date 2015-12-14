@@ -2,50 +2,58 @@
 // ---------
 // Base 是一个基础类，提供 Class、Events、Attrs 和 Aspect 支持。
 
-var Class = require('./class');
-var Events = require('./events');
-var Aspect = require('./aspect');
-var Attribute = require('./attribute');
+var Hui = Hui || {};
+
+(function(){
+
+  'use strict';
+
+  var Class = Hui.Class;
+  var Events = Hui.Events;
+  var Aspect = Hui.Aspect;
+  var Attribute = Hui.Attribute;
 
 
-module.exports = Class.create({
-  Implements: [Events, Aspect, Attribute],
+  Hui.Base = Class.create({
+    Implements: [Events, Aspect, Attribute],
 
-  initialize: function(config) {
-    this.initAttrs(config);
+    initialize: function(config) {
+      this.initAttrs(config);
 
-    // Automatically register `this._onChangeAttr` method as
-    // a `change:attr` event handler.
-    parseEventsFromInstance(this, this.attrs);
-  },
+      // Automatically register `this._onChangeAttr` method as
+      // a `change:attr` event handler.
+      parseEventsFromInstance(this, this.attrs);
+    },
 
-  destroy: function() {
-    this.off();
+    destroy: function() {
+      this.off();
 
-    for (var p in this) {
-      if (this.hasOwnProperty(p)) {
-        delete this[p];
+      for (var p in this) {
+        if (this.hasOwnProperty(p)) {
+          delete this[p];
+        }
+      }
+
+      // Destroy should be called only once, generate a fake destroy after called
+      // https://github.com/aralejs/widget/issues/50
+      this.destroy = function() {};
+    }
+  });
+
+
+  function parseEventsFromInstance(host, attrs) {
+    for (var attr in attrs) {
+      if (attrs.hasOwnProperty(attr)) {
+        var m = '_onChange' + ucfirst(attr);
+        if (host[m]) {
+          host.on('change:' + attr, host[m]);
+        }
       }
     }
-
-    // Destroy should be called only once, generate a fake destroy after called
-    // https://github.com/aralejs/widget/issues/50
-    this.destroy = function() {};
   }
-});
 
-
-function parseEventsFromInstance(host, attrs) {
-  for (var attr in attrs) {
-    if (attrs.hasOwnProperty(attr)) {
-      var m = '_onChange' + ucfirst(attr);
-      if (host[m]) {
-        host.on('change:' + attr, host[m]);
-      }
-    }
+  function ucfirst(str) {
+    return str.charAt(0).toUpperCase() + str.substring(1);
   }
-}
 
-function ucfirst(str) {
-  return str.charAt(0).toUpperCase() + str.substring(1);
-}
+})()

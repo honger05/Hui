@@ -3,9 +3,223 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Demostrate Widget</title>
+	<style>
+				.nav li {
+		        list-style: none;
+		        float: left;
+		        border: 1px solid #eee;
+		        padding: 5px 10px;
+		        border-bottom: none;
+		        cursor: pointer;
+		    }
+
+		    .nav li.active {
+		        background: #eee;
+		    }
+
+		    .content {
+		        clear: both;
+		        border: 1px solid #eee;
+		        height: 200px;
+		        width: 500px;
+		        overflow: hidden;
+		    }
+
+		    .content div {
+		        height: 200px;
+		        padding: 20px;
+		    }
+
+		    #egg {
+		        padding: 5px 20px;
+		        margin: 10px 0;
+		    }
+	</style>
 </head>
 <body>
+
+	<div id="demo">
+		<ul class="nav">
+			<li>开放</li>
+			<li>简单</li>
+			<li>易用</li>
+		</ul>
+		<div class="content">
+			<div>开源开放，海纳百川。</div>
+			<div>如无必要，勿增实体。</div>
+			<div>一目了然，容易学习。</div>
+		</div>
+	</div>
+
+	<button id="egg">手贱</button>
 	
-	<script src="../dist/widget.js"></script>
+	<script src="../dist/jquery.js"></script>
+	<script src="../dist/core.js"></script>
+	<script>
+		var Widget = Hui.Widget;
+
+		//////////
+		// 实现继承 //
+		//////////
+		var WidgetA = Widget.extend({
+			attrs: {
+				a: 1 
+			},
+
+			method: function() {
+				console.log('this.get("a"): ' + this.get('a'));
+			}
+		})
+
+		var widget_a = new WidgetA({
+			a: 2
+		});
+
+		widget_a.method();
+
+		
+		/////////////
+		// 可以动态改属性 //
+		/////////////
+		var WidgetB = Widget.extend({
+			attrs: {
+				a: 1
+			},
+
+			// 触发的两种情况
+			// 1. 在属性改变的时候
+			// 2. 在调用 render 方法的时候（插入文档流之前）
+			//    但当属性值为 null 或 undefined 时则不会触发.
+			_onRenderA: function(val) {
+				console.log('onRender: ' + val)
+			}
+		})
+
+		var widget_b = new WidgetB();
+		widget_b.render(); // 1
+		widget_b.set('a', 2); // 2
+
+
+		//////////
+		// 事件代理 //
+		//////////
+		/// 1. 每个 Widget 只会对应一个 element，会对他的 DOM 及事件进行操作。
+		/// element 的生成有两种情况
+		/// a. 实例化的时候传入
+		/// b. 由 template 生成
+		/// 支持 {{name}} 表达式
+		/// events 中每一项的格式是："event selector": "callback"，
+		/// 当省略 selector 时，默认会将事件绑定到 this.element 上
+		var MyWidget = Widget.extend({
+			events: {
+				"click": "open",
+        "click .close": "close",
+        "mouseover {{attrs.panels}}": "hover"
+			}
+		})
+
+
+
+		/**
+		 * 上面都是语法
+		 * 下面实现一个简单的 tab 组件
+		 */
+		var SimpleTabView = Widget.extend({
+
+			attrs: {
+				triggers: {
+					value: '.nav li',
+					getter: function(val) {
+						return this.$(val);
+					},
+					readOnly: true
+				},
+
+				panels: {
+					value: '.content div',
+					getter: function(val) {
+						return this.$(val);
+					},
+					readOnly: true
+				},
+
+				activeIndex: {
+					value: 0
+				}
+			},
+
+			events: {
+				'click .nav li': '_switchToEventHandler'
+			},
+
+			_onRenderActiveIndex: function(val, prev) {
+				var triggers = this.get('triggers')
+				var panels = this.get('panels')
+
+				triggers.eq(prev).removeClass('active')
+				triggers.eq(val).addClass('active')
+
+				panels.eq(prev).hide()
+				panels.eq(val).show()
+			},
+
+			_switchToEventHandler: function(ev) {
+				var index = this.get('triggers').index(ev.target)
+				this.switchTo(index)
+			},
+
+		  switchTo: function(index) {
+		  	this.set('activeIndex', index)
+		  },
+
+		  setup: function() {
+		  	this.get('panels').hide()
+		  	this.switchTo(this.get('activeIndex'))
+		  },
+
+		  add: function(title, content) {
+		  	var li = $('<li>' + title + '</li>')
+		  	var div = $('<div>' + content + '</div>')
+
+		  	li.appendTo(this.get('triggers')[0].parentNode)
+		  	div.appendTo(this.get('panels')[0].parentNode)
+
+		  	return this
+		  },
+
+		  setActiveContent: function(content) {
+		  	this.get('panels').eq(this.get('activeIndex')).html(content)
+		  },
+
+		  size: function() {
+		  	return this.get('triggers').length
+		  }
+
+		})
+
+		var tabView = new SimpleTabView({
+			element: '#demo',
+			activeIndex: 0
+		})
+
+		tabView.render();
+
+		var counter = 0;
+
+		$('#egg').on('click', function() {
+			counter += 1;
+			if (counter < 4) {
+				tabView.add('haha', '你已经点击了' + counter + '次了')
+							 .switchTo(tabView.size() - 1)
+			}
+			else if (counter === 4) {
+				tabView.setActiveContent('囧，你居然还点击，手真贱呀')
+			}
+			else {
+				tabView.element.replaceWith('悄悄的我走了，带走了所有代码...')
+				$(this).remove()
+			}
+		})
+	</script>
 </body>
 </html>
