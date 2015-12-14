@@ -20,7 +20,10 @@ var Hui = Hui || {};
 
     attrs: {
       // 模板
-      template: require('./dialog.handlebars'),
+      template: '<div class="{{classPrefix}}">\
+                  <a class="{{classPrefix}}-close" title="Close" href="javascript:;" data-role="close"></a>\
+                  <div class="{{classPrefix}}-content" data-role="content"></div>\
+                </div>',
 
       // 对话框触发点
       trigger: {
@@ -458,7 +461,7 @@ var Hui = Hui || {};
 
   });
 
-  module.exports = Dialog;
+  Hui.Dialog = Dialog;
 
   // Helpers
   // ----

@@ -1,0 +1,53 @@
+.h-btn *
+{
+    margin: 0;
+    padding: 0;
+}
+
+.h-btn
+{
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+
+    display: inline-block;
+
+    padding: 0 20px;
+
+    cursor: pointer;
+    text-align: center;
+    vertical-align: middle;
+    text-decoration: none;
+
+    border-radius: 2px;
+    background-image: none;
+
+    *display: inline;
+    *zoom: 1;
+    *overflow: visible;
+}
+
+.h-btn:hover
+{
+    text-decoration: none;
+
+    background-image: none;
+}
+
+.h-btn:active {
+	position: relative;
+	top: 1px;
+	box-shadow: 1px 1px 3px #999 inset
+}
+
+.h-btn-default {
+	color: #fff;
+	border: 1px solid #154c67;
+  background-color: #006ba1;
+}
+
+.h-btn-default:hover,
+.h-btn-default:active {
+	color: #fff;
+	background-color: #007ab8;
+}

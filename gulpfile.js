@@ -28,11 +28,15 @@ gulp.task('uglify-core', ['core'], function() {
 
 gulp.task('ui', function() {
 	return gulp.src([ 
-										'src/ui/position.js',
-										'src/ui/iframe-shim.js',
+										'src/utility/position.js',
+										'src/utility/iframe-shim.js',
+										'src/utility/messenger.js',
+										'src/utility/templatable.js',
 										'src/ui/overlay.js',
 										'src/ui/mask.js',
-										'src/ui/popup.js'
+										'src/ui/popup.js',
+										'src/ui/dialog.js',
+										'src/ui/confirmbox.js'
 									])
 						 .pipe(concat('hui-debug.js'))
 						 .pipe(gulp.dest('dist/'))
@@ -45,5 +49,15 @@ gulp.task('uglify-ui', ['ui'], function() {
 						 .pipe(gulp.dest('dist/'))
 })
 
+gulp.task('asset', function() {
+	return gulp.src('src/asset/**/*.*')
+						 .pipe(gulp.dest('dist/asset'))
+})
 
-gulp.task('default', ['uglify-core', 'uglify-ui']);
+gulp.task('lib', function() {
+	return gulp.src('src/lib/**/*.*')
+						 .pipe(gulp.dest('dist/lib'))
+})
+
+
+gulp.task('default', ['uglify-core', 'uglify-ui', 'asset', 'lib']);

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Demostrate Dialog</title>
+	<link rel="stylesheet" href="../dist/asset/alice/button.css">
+	<link rel="stylesheet" type="text/css" href="../dist/asset/alice/dialog.css">
+</head>
+<body>
+	
+	<button id="example1" class="ui-button ui-button-lorange">传入了字符串</button>
+	<button id="example2" class="ui-button ui-button-morange">传入了 DOM</button>
+	<button id="example3" class="ui-button ui-button-sorange">传入了 HTML 标签</button>
+	<button id="example4" class="ui-button ui-button-sorange">传入了 URL</button>
+	
+	<div id="example5" class="cell">
+    <button data-src="http://baidu.com">百度</button>
+    <button data-src="http://douban.com">豆瓣</button>
+    <button data-src="https://www.alipay.com">支付宝</button>
+	</div>
+
+	<div id="example6" class="cell">
+    <button data-id="10015">图片1</button>
+    <button data-id="10016">图片2</button>
+    <button data-id="10053">图片3</button>
+    <button data-id="10075">图片4</button>
+	</div>
+
+	<div id="example2-dom">传入了 DOM</div>
+
+	<button id="example_1">打开第一个对话框</button>
+	<button id="example_2" style="display: none">打开第二个对话框</button>
+
+	<script src="../dist/lib/jquery/jquery.js"></script>
+	<script src="../dist/lib/handlebars/handlebars.js"></script>
+	<script src="../dist/core-debug.js"></script>
+	<script src="../dist/hui-debug.js"></script>
+
+	<script>
+		var Dialog = Hui.Dialog;
+
+		// 1. 基本调用，内容传入字符串
+		new Dialog({
+			trigger: '#example1',
+			height: '100px',
+			content: '传入了字符串'
+		})
+
+		// 2. 内容可传入 DOM 对象
+		new Dialog({
+			trigger: '#example2',
+    	content: $('#example2-dom')
+		})
+
+		// 3. 内容可传入 html 标签
+		new Dialog({
+	    trigger: '#example3',
+	    content: '<div style="padding:20px;">传入了 html 标签</div>'
+		});
+
+		// 4. 内容可传入 url，自动判断是否为 url
+		new Dialog({
+	    trigger: '#example4',
+	    content: './iframe.html',
+	    initialHeight: 150
+		});
+
+		// 5. iframe 的 url 可以根据 trigger 变化
+		new Dialog({
+	    trigger: '#example5 button',
+	    height: '400px'
+		}).before('show',function() {
+      this.set('content', this.activeTrigger.attr('data-src'));
+		});
+
+		// 6. 当然除了 iframe，同样可以动态修改 content
+		new Dialog({
+	    trigger: '#example6 button',
+	    height: '160px',
+	    width: '160px'
+		}).before('show',function() {
+	    var img = '<img src="https://i.alipayobjects.com/combo.jpg?d=apps/58&t='+ this.activeTrigger.attr('data-id') + '" />';
+	    this.set('content', img);
+		});
+
+		// 两个对话框共享遮罩层
+		var Confirmbox = Hui.ConfirmBox;
+
+		var d1 = new Dialog({
+		    trigger: '#example_1',
+		    height: 400,
+		    content: '#example_2'
+		});
+		d1.after('show', function() {
+		    $('#example_2').show();
+		});
+
+		$('#example_2').click(function() {
+		    Confirmbox.alert('xxx');
+		});
+
+	</script>
+</body>
+</html>

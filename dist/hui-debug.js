@@ -351,6 +351,335 @@ var Hui = Hui || {};
     }
 
 })(jQuery)
+/**
+ *     __  ___
+ *    /  |/  /___   _____ _____ ___   ____   ____ _ ___   _____
+ *   / /|_/ // _ \ / ___// ___// _ \ / __ \ / __ `// _ \ / ___/
+ *  / /  / //  __/(__  )(__  )/  __// / / // /_/ //  __// /
+ * /_/  /_/ \___//____//____/ \___//_/ /_/ \__, / \___//_/
+ *                                        /____/
+ *
+ * @description MessengerJS, a common cross-document communicate solution.
+ * @author biqing kwok
+ * @version 2.0
+ * @license release under MIT license
+ */
+var Hui = Hui || {};
+
+Hui.Messenger = (function(){
+    'use strict'
+
+    // 消息前缀, 建议使用自己的项目名, 避免多项目之间的冲突
+    var prefix = "arale-messenger",
+        supportPostMessage = 'postMessage' in window;
+
+    // Target 类, 消息对象
+    function Target(target, name){
+        var errMsg = '';
+        if(arguments.length < 2){
+            errMsg = 'target error - target and name are both required';
+        } else if (typeof target != 'object'){
+            errMsg = 'target error - target itself must be window object';
+        } else if (typeof name != 'string'){
+            errMsg = 'target error - target name must be string type';
+        }
+        if(errMsg){
+            throw new Error(errMsg);
+        }
+        this.target = target;
+        this.name = name;
+    }
+
+    // 往 target 发送消息, 出于安全考虑, 发送消息会带上前缀
+    if ( supportPostMessage ){
+        // IE8+ 以及现代浏览器支持
+        Target.prototype.send = function(msg){
+            this.target.postMessage(prefix + msg, '*');
+        };
+    } else {
+        // 兼容IE 6/7
+        Target.prototype.send = function(msg){
+            var targetFunc = window.navigator[prefix + this.name];
+            if ( typeof targetFunc == 'function' ) {
+                targetFunc(prefix + msg, window);
+            } else {
+                throw new Error("target callback function is not defined");
+            }
+        };
+    }
+
+    // 信使类
+    // 创建Messenger实例时指定, 必须指定Messenger的名字, (可选)指定项目名, 以避免Mashup类应用中的冲突
+    // !注意: 父子页面中projectName必须保持一致, 否则无法匹配
+    function Messenger(messengerName, projectName){
+        this.targets = {};
+        this.name = messengerName;
+        this.listenFunc = [];
+        prefix = projectName || prefix;
+        this.initListen();
+    }
+
+    // 添加一个消息对象
+    Messenger.prototype.addTarget = function(target, name){
+        var targetObj = new Target(target, name);
+        this.targets[name] = targetObj;
+    };
+
+    // 初始化消息监听
+    Messenger.prototype.initListen = function(){
+        var self = this;
+        var generalCallback = function(msg){
+            if(typeof msg == 'object' && msg.data){
+                msg = msg.data;
+            }
+            // 剥离消息前缀
+            msg = msg.slice(prefix.length);
+            for(var i = 0; i < self.listenFunc.length; i++){
+                self.listenFunc[i](msg);
+            }
+        };
+
+        if ( supportPostMessage ){
+            if ( 'addEventListener' in document ) {
+                window.addEventListener('message', generalCallback, false);
+            } else if ( 'attachEvent' in document ) {
+                window.attachEvent('onmessage', generalCallback);
+            }
+        } else {
+            // 兼容IE 6/7
+            window.navigator[prefix + this.name] = generalCallback;
+        }
+    };
+
+    // 监听消息
+    Messenger.prototype.listen = function(callback){
+        this.listenFunc.push(callback);
+    };
+    // 注销监听
+    Messenger.prototype.clear = function(){
+        this.listenFunc = [];
+    };
+    // 广播消息
+    Messenger.prototype.send = function(msg){
+        var targets = this.targets,
+            target;
+        for(target in targets){
+            if(targets.hasOwnProperty(target)){
+                targets[target].send(msg);
+            }
+        }
+    };
+
+    return Messenger;
+
+})();
+
+
+var Hui = Hui || {};
+
+(function($, Handlebars) {
+  'use strict'
+
+  var compiledTemplates = {};
+
+  // 提供 Template 模板支持，默认引擎是 Handlebars
+  Hui.Templatable = {
+
+    // Handlebars 的 helpers
+    templateHelpers: null,
+
+    // Handlebars 的 partials
+    templatePartials: null,
+
+    // template 对应的 DOM-like object
+    templateObject: null,
+
+    // 根据配置的模板和传入的数据，构建 this.element 和 templateElement
+    parseElementFromTemplate: function () {
+      // template 支持 id 选择器
+      var t, template = this.get('template');
+      if (/^#/.test(template) && (t = document.getElementById(template.substring(1)))) {
+        template = t.innerHTML;
+        this.set('template', template);
+      }
+      this.templateObject = convertTemplateToObject(template);
+      this.element = $(this.compile());
+    },
+
+    // 编译模板，混入数据，返回 html 结果
+    compile: function (template, model) {
+      template || (template = this.get('template'));
+
+      model || (model = this.get('model')) || (model = {});
+      if (model.toJSON) {
+        model = model.toJSON();
+      }
+
+      // handlebars runtime，注意 partials 也需要预编译
+      if (isFunction(template)) {
+        return template(model, {
+          helpers: this.templateHelpers,
+          partials: precompile(this.templatePartials)
+        });
+      } else {
+        var helpers = this.templateHelpers;
+        var partials = this.templatePartials;
+        var helper, partial;
+
+        // 注册 helpers
+        if (helpers) {
+          for (helper in helpers) {
+            if (helpers.hasOwnProperty(helper)) {
+              Handlebars.registerHelper(helper, helpers[helper]);
+            }
+          }
+        }
+        // 注册 partials
+        if (partials) {
+          for (partial in partials) {
+            if (partials.hasOwnProperty(partial)) {
+              Handlebars.registerPartial(partial, partials[partial]);
+            }
+          }
+        }
+
+        var compiledTemplate = compiledTemplates[template];
+        if (!compiledTemplate) {
+          compiledTemplate = compiledTemplates[template] = Handlebars.compile(template);
+        }
+
+        // 生成 html
+        var html = compiledTemplate(model);
+
+        // 卸载 helpers
+        if (helpers) {
+          for (helper in helpers) {
+            if (helpers.hasOwnProperty(helper)) {
+              delete Handlebars.helpers[helper];
+            }
+          }
+        }
+        // 卸载 partials
+        if (partials) {
+          for (partial in partials) {
+            if (partials.hasOwnProperty(partial)) {
+              delete Handlebars.partials[partial];
+            }
+          }
+        }
+        return html;
+      }
+    },
+
+    // 刷新 selector 指定的局部区域
+    renderPartial: function (selector) {
+      if (this.templateObject) {
+        var template = convertObjectToTemplate(this.templateObject, selector);
+
+        if (template) {
+          if (selector) {
+            this.$(selector).html(this.compile(template));
+          } else {
+            this.element.html(this.compile(template));
+          }
+        } else {
+          this.element.html(this.compile());
+        }
+      }
+
+      // 如果 template 已经编译过了，templateObject 不存在
+      else {
+        var all = $(this.compile());
+        var selected = all.find(selector);
+        if (selected.length) {
+          this.$(selector).html(selected.html());
+        } else {
+          this.element.html(all.html());
+        }
+      }
+
+      return this;
+    }
+  };
+
+
+  // Helpers
+  // -------
+  var _compile = Handlebars.compile;
+
+  Handlebars.compile = function (template) {
+    return isFunction(template) ? template : _compile.call(Handlebars, template);
+  };
+
+  // 将 template 字符串转换成对应的 DOM-like object
+
+
+  function convertTemplateToObject(template) {
+    return isFunction(template) ? null : $(encode(template));
+  }
+
+  // 根据 selector 得到 DOM-like template object，并转换为 template 字符串
+
+
+  function convertObjectToTemplate(templateObject, selector) {
+    if (!templateObject) return;
+
+    var element;
+    if (selector) {
+      element = templateObject.find(selector);
+      if (element.length === 0) {
+        throw new Error('Invalid template selector: ' + selector);
+      }
+    } else {
+      element = templateObject;
+    }
+    return decode(element.html());
+  }
+
+  function encode(template) {
+    return template
+    // 替换 {{xxx}} 为 <!-- {{xxx}} -->
+    .replace(/({[^}]+}})/g, '<!--$1-->')
+    // 替换 src="{{xxx}}" 为 data-TEMPLATABLE-src="{{xxx}}"
+    .replace(/\s(src|href)\s*=\s*(['"])(.*?\{.+?)\2/g, ' data-templatable-$1=$2$3$2');
+  }
+
+  function decode(template) {
+    return template.replace(/(?:<|&lt;)!--({{[^}]+}})--(?:>|&gt;)/g, '$1').replace(/data-templatable-/ig, '');
+  }
+
+  function isFunction(obj) {
+    return typeof obj === "function";
+  }
+
+  function precompile(partials) {
+    if (!partials) return {};
+
+    var result = {};
+    for (var name in partials) {
+      var partial = partials[name];
+      result[name] = isFunction(partial) ? partial : Handlebars.compile(partial);
+    }
+    return result;
+  };
+
+
+  // 调用 renderPartial 时，Templatable 对模板有一个约束：
+  // ** template 自身必须是有效的 html 代码片段**，比如
+  //   1. 代码闭合
+  //   2. 嵌套符合规范
+  //
+  // 总之，要保证在 template 里，将 `{{...}}` 转换成注释后，直接 innerHTML 插入到
+  // DOM 中，浏览器不会自动增加一些东西。比如：
+  //
+  // tbody 里没有 tr：
+  //  `<table><tbody>{{#each items}}<td>{{this}}</td>{{/each}}</tbody></table>`
+  //
+  // 标签不闭合：
+  //  `<div><span>{{name}}</div>`
+
+
+})(jQuery, Handlebars)
 
 var Hui = Hui || {};
 
@@ -976,5 +1305,664 @@ var Hui = Hui || {};
       fn.call(e.currentTarget, e);
     });
   }
+
+})(jQuery)
+
+var Hui = Hui || {};
+
+(function($) {
+  'use strict'
+
+  var Overlay = Hui.Overlay,
+      mask = Hui.Mask,
+      Events = Hui.Events,
+      Templatable = Hui.Templatable,
+      Messenger = Hui.Messenger;
+
+  // Dialog
+  // ---
+  // Dialog 是通用对话框组件，提供显隐关闭、遮罩层、内嵌iframe、内容区域自定义功能。
+  // 是所有对话框类型组件的基类。
+  var Dialog = Overlay.extend({
+
+    Implements: Templatable,
+
+    attrs: {
+      // 模板
+      template: '<div class="{{classPrefix}}">\
+                  <a class="{{classPrefix}}-close" title="Close" href="javascript:;" data-role="close"></a>\
+                  <div class="{{classPrefix}}-content" data-role="content"></div>\
+                </div>',
+
+      // 对话框触发点
+      trigger: {
+        value: null,
+        getter: function (val) {
+          return $(val);
+        }
+      },
+
+      // 统一样式前缀
+      classPrefix: 'ui-dialog',
+
+      // 指定内容元素，可以是 url 地址
+      content: {
+        value: null,
+        setter: function (val) {
+          // 判断是否是 url 地址
+          if (/^(https?:\/\/|\/|\.\/|\.\.\/)/.test(val)) {
+            this._type = 'iframe';
+            // 用 ajax 的方式而不是 iframe 进行载入
+            if (val.indexOf('?ajax') > 0 || val.indexOf('&ajax') > 0) {
+              this._ajax = true;
+            }
+          }
+          return val;
+        }
+      },
+
+      // 是否有背景遮罩层
+      hasMask: true,
+
+      // 关闭按钮可以自定义
+      closeTpl: '×',
+
+      // 默认宽度
+      width: 500,
+
+      // 默认高度
+      height: null,
+
+      // iframe 类型时，dialog 的最初高度
+      initialHeight: 300,
+
+      // 简单的动画效果 none | fade
+      effect: 'none',
+
+      // 不用解释了吧
+      zIndex: 999,
+
+      // 是否自适应高度
+      autoFit: true,
+
+      // 默认定位左右居中，略微靠上
+      align: {
+        value: {
+          selfXY: ['50%', '50%'],
+          baseXY: ['50%', '42%']
+        },
+        getter: function (val) {
+          // 高度超过窗口的 42/50 浮层头部顶住窗口
+          // https://github.com/aralejs/dialog/issues/41
+          if (this.element.height() > $(window).height() * 0.84) {
+            return {
+              selfXY: ['50%', '0'],
+              baseXY: ['50%', '0']
+            };
+          }
+          return val;
+        }
+      }
+    },
+
+
+    parseElement: function () {
+      this.set("model", {
+        classPrefix: this.get('classPrefix')
+      });
+      Dialog.superclass.parseElement.call(this);
+      this.contentElement = this.$('[data-role=content]');
+
+      // 必要的样式
+      this.contentElement.css({
+        height: '100%',
+        zoom: 1
+      });
+      // 关闭按钮先隐藏
+      // 后面当 onRenderCloseTpl 时，如果 closeTpl 不为空，会显示出来
+      // 这样写是为了回避 arale.base 的一个问题：
+      // 当属性初始值为''时，不会进入 onRender 方法
+      // https://github.com/aralejs/base/issues/7
+      this.$('>[data-role=close]').hide();
+    },
+
+    events: {
+      'click [data-role=close]': function (e) {
+        e.preventDefault();
+        this.hide();
+      }
+    },
+
+    show: function () {
+      // iframe 要在载入完成才显示
+      if (this._type === 'iframe') {
+        // ajax 读入内容并 append 到容器中
+        if (this._ajax) {
+          this._ajaxHtml();
+        } else {
+          // iframe 还未请求完，先设置一个固定高度
+          !this.get('height') && this.contentElement.css('height', this.get('initialHeight'));
+          this._showIframe();
+        }
+      }
+
+      Dialog.superclass.show.call(this);
+      return this;
+    },
+
+    hide: function () {
+      // 把 iframe 状态复原
+      if (this._type === 'iframe' && this.iframe) {
+        // 如果是跨域iframe，会抛出异常，所以需要加一层判断
+        if (!this._isCrossDomainIframe) {
+          this.iframe.attr({
+            src: 'javascript:\'\';'
+          });
+        }
+        // 原来只是将 iframe 的状态复原
+        // 但是发现在 IE6 下，将 src 置为 javascript:''; 会出现 404 页面
+        this.iframe.remove();
+        this.iframe = null;
+      }
+
+      Dialog.superclass.hide.call(this);
+      clearInterval(this._interval);
+      delete this._interval;
+      return this;
+    },
+
+    destroy: function () {
+      this.element.remove();
+      this._hideMask();
+      clearInterval(this._interval);
+      return Dialog.superclass.destroy.call(this);
+    },
+
+    setup: function () {
+      Dialog.superclass.setup.call(this);
+
+      this._setupTrigger();
+      this._setupMask();
+      this._setupKeyEvents();
+      this._setupFocus();
+      toTabed(this.element);
+      toTabed(this.get('trigger'));
+
+      // 默认当前触发器
+      this.activeTrigger = this.get('trigger').eq(0);
+    },
+
+    // onRender
+    // ---
+    _onRenderContent: function (val) {
+      if (this._type !== 'iframe') {
+        var value;
+        // 有些情况会报错
+        try {
+          value = $(val);
+        } catch (e) {
+          value = [];
+        }
+        if (value[0]) {
+          this.contentElement.empty().append(value);
+        } else {
+          this.contentElement.empty().html(val);
+        }
+        // #38 #44
+        this._setPosition();
+      }
+    },
+
+    _onRenderCloseTpl: function (val) {
+      if (val === '') {
+        this.$('>[data-role=close]').html(val).hide();
+      } else {
+        this.$('>[data-role=close]').html(val).show();
+      }
+    },
+
+    // 覆盖 overlay，提供动画
+    _onRenderVisible: function (val) {
+      if (val) {
+        if (this.get('effect') === 'fade') {
+          // 固定 300 的动画时长，暂不可定制
+          this.element.fadeIn(300);
+        } else {
+          this.element.show();
+        }
+      } else {
+        this.element.hide();
+      }
+    },
+
+    // 私有方法
+    // ---
+    // 绑定触发对话框出现的事件
+    _setupTrigger: function () {
+      this.delegateEvents(this.get('trigger'), 'click', function (e) {
+        e.preventDefault();
+        // 标识当前点击的元素
+        this.activeTrigger = $(e.currentTarget);
+        this.show();
+      });
+    },
+
+    // 绑定遮罩层事件
+    _setupMask: function () {
+      var that = this;
+
+      // 存放 mask 对应的对话框
+      mask._dialogs = mask._dialogs || [];
+
+      this.after('show', function () {
+        if (!this.get('hasMask')) {
+          return;
+        }
+        // not using the z-index
+        // because multiable dialogs may share same mask
+        mask.set('zIndex', that.get('zIndex')).show();
+        mask.element.insertBefore(that.element);
+
+        // 避免重复存放
+        var existed;
+        for (var i=0; i<mask._dialogs.length; i++) {
+          if (mask._dialogs[i] === that) {
+            existed = mask._dialogs[i];
+          }
+        }
+        if (existed) {
+          // 把已存在的对话框提到最后一个
+          erase(existed, mask._dialogs);
+          mask._dialogs.push(existed);
+        } else {
+          // 存放新的对话框
+          mask._dialogs.push(that);
+        }
+      });
+
+      this.after('hide', this._hideMask);
+    },
+
+    // 隐藏 mask
+    _hideMask: function () {
+      if (!this.get('hasMask')) {
+        return;
+      }
+
+      // 移除 mask._dialogs 当前实例对应的 dialog
+      var dialogLength = mask._dialogs ? mask._dialogs.length : 0;
+      for (var i=0; i<dialogLength; i++) {
+        if (mask._dialogs[i] === this) {
+          erase(this, mask._dialogs);
+
+          // 如果 _dialogs 为空了，表示没有打开的 dialog 了
+          // 则隐藏 mask
+          if (mask._dialogs.length === 0) {
+            mask.hide();
+          }
+          // 如果移除的是最后一个打开的 dialog
+          // 则相应向下移动 mask
+          else if (i === dialogLength - 1) {
+            var last = mask._dialogs[mask._dialogs.length - 1];
+            mask.set('zIndex', last.get('zIndex'));
+            mask.element.insertBefore(last.element);
+          }
+        }
+      }
+    },
+
+    // 绑定元素聚焦状态
+    _setupFocus: function () {
+      this.after('show', function () {
+        this.element.focus();
+      });
+      this.after('hide', function () {
+        // 关于网页中浮层消失后的焦点处理
+        // http://www.qt06.com/post/280/
+        this.activeTrigger && this.activeTrigger.focus();
+      });
+    },
+
+    // 绑定键盘事件，ESC关闭窗口
+    _setupKeyEvents: function () {
+      this.delegateEvents($(document), 'keyup.esc', function (e) {
+        if (e.keyCode === 27) {
+          this.get('visible') && this.hide();
+        }
+      });
+    },
+
+    _showIframe: function () {
+      var that = this;
+      // 若未创建则新建一个
+      if (!this.iframe) {
+        this._createIframe();
+      }
+
+      // 开始请求 iframe
+      this.iframe.attr({
+        src: this._fixUrl(),
+        name: 'dialog-iframe' + new Date().getTime()
+      });
+
+      // 因为在 IE 下 onload 无法触发
+      // http://my.oschina.net/liangrockman/blog/24015
+      // 所以使用 jquery 的 one 函数来代替 onload
+      // one 比 on 好，因为它只执行一次，并在执行后自动销毁
+      this.iframe.one('load', function () {
+        // 如果 dialog 已经隐藏了，就不需要触发 onload
+        if (!that.get('visible')) {
+          return;
+        }
+
+        // 是否跨域的判断需要放入iframe load之后
+        that._isCrossDomainIframe = isCrossDomainIframe(that.iframe);
+
+        if (!that._isCrossDomainIframe) {
+          // 绑定自动处理高度的事件
+          if (that.get('autoFit')) {
+            clearInterval(that._interval);
+            that._interval = setInterval(function () {
+              that._syncHeight();
+            }, 300);
+          }
+          that._syncHeight();
+        }
+
+        that._setPosition();
+        that.trigger('complete:show');
+      });
+    },
+
+    _fixUrl: function () {
+      var s = this.get('content').match(/([^?#]*)(\?[^#]*)?(#.*)?/);
+      s.shift();
+      s[1] = ((s[1] && s[1] !== '?') ? (s[1] + '&') : '?') + 't=' + new Date().getTime();
+      return s.join('');
+    },
+
+    _createIframe: function () {
+      var that = this;
+
+      this.iframe = $('<iframe>', {
+        src: 'javascript:\'\';',
+        scrolling: 'no',
+        frameborder: 'no',
+        allowTransparency: 'true',
+        css: {
+          border: 'none',
+          width: '100%',
+          display: 'block',
+          height: '100%',
+          overflow: 'hidden'
+        }
+      }).appendTo(this.contentElement);
+
+      // 给 iframe 绑一个 close 事件
+      // iframe 内部可通过 window.frameElement.trigger('close') 关闭
+      Events.mixTo(this.iframe[0]);
+      this.iframe[0].on('close', function () {
+        that.hide();
+      });
+
+      // 跨域则使用arale-messenger进行通信
+      var m = new Messenger('parent', 'arale-dialog');
+      this.iframe.one('load', function () {
+        m.addTarget(that.iframe[0].contentWindow, 'iframe1');
+        m.listen(function (data) {
+          data = JSON.parse(data);
+          switch (data.event) {
+            case 'close':
+              that.hide();
+              break;
+            case 'syncHeight':
+              that._setHeight(data.height.toString().slice(-2) === 'px' ? data.height : data.height + 'px');
+              break;
+            default:
+              break;
+          }
+        });
+      });
+    },
+
+    _setHeight: function (h) {
+      this.contentElement.css('height', h);
+      // force to reflow in ie6
+      // http://44ux.com/blog/2011/08/24/ie67-reflow-bug/
+      this.element[0].className = this.element[0].className;
+    },
+
+    _syncHeight: function () {
+      var h;
+      // 如果未传 height，才会自动获取
+      if (!this.get('height')) {
+        try {
+          this._errCount = 0;
+          h = getIframeHeight(this.iframe) + 'px';
+        } catch (err) {
+          // 页面跳转也会抛错，最多失败6次
+          this._errCount = (this._errCount || 0) + 1;
+          if (this._errCount >= 6) {
+            // 获取失败则给默认高度 300px
+            // 跨域会抛错进入这个流程
+            h = this.get('initialHeight');
+            clearInterval(this._interval);
+            delete this._interval;
+          }
+        }
+        this._setHeight(h);
+
+      } else {
+        clearInterval(this._interval);
+        delete this._interval;
+      }
+    },
+
+    _ajaxHtml: function () {
+      var that = this;
+      this.contentElement.css('height', this.get('initialHeight'));
+      this.contentElement.load(this.get('content'), function () {
+        that._setPosition();
+        that.contentElement.css('height', '');
+        that.trigger('complete:show');
+      });
+    }
+
+  });
+
+  Hui.Dialog = Dialog;
+
+  // Helpers
+  // ----
+  // 让目标节点可以被 Tab
+  function toTabed(element) {
+    if (element.attr('tabindex') == null) {
+      element.attr('tabindex', '-1');
+    }
+  }
+
+  // 获取 iframe 内部的高度
+  function getIframeHeight(iframe) {
+    var D = iframe[0].contentWindow.document;
+    if (D.body.scrollHeight && D.documentElement.scrollHeight) {
+      return Math.min(D.body.scrollHeight, D.documentElement.scrollHeight);
+    } else if (D.documentElement.scrollHeight) {
+      return D.documentElement.scrollHeight;
+    } else if (D.body.scrollHeight) {
+      return D.body.scrollHeight;
+    }
+  }
+
+
+  // iframe 是否和当前页面跨域
+  function isCrossDomainIframe(iframe) {
+    var isCrossDomain = false;
+    try {
+      iframe[0].contentWindow.document;
+    } catch (e) {
+      isCrossDomain = true;
+    }
+    return isCrossDomain;
+  }
+
+  // erase item from array
+  function erase(item, array) {
+    var index = -1;
+    for (var i=0; i<array.length; i++) {
+      if (array[i] === item) {
+        index = i;
+        break;
+      }
+    }
+    if (index !== -1) {
+      array.splice(index, 1);
+    }
+  }
+
+})(jQuery)
+
+var Hui = Hui || {};
+
+(function($) {
+  'use strict'
+
+  var Dialog = Hui.Dialog;
+
+  var template = '{{#if title}}\
+<div class="{{classPrefix}}-title" data-role="title">{{{title}}}</div>\
+{{/if}}\
+<div class="{{classPrefix}}-container">\
+    <div class="{{classPrefix}}-message" data-role="message">{{{message}}}</div>\
+    {{#if hasFoot}}\
+    <div class="{{classPrefix}}-operation" data-role="foot">\
+        {{#if confirmTpl}}\
+        <div class="{{classPrefix}}-confirm" data-role="confirm">\
+            {{{confirmTpl}}}\
+        </div>\
+        {{/if}}\
+        {{#if cancelTpl}}\
+        <div class="{{classPrefix}}-cancel" data-role="cancel">\
+            {{{cancelTpl}}}\
+        </div>\
+        {{/if}}\
+    </div>\
+    {{/if}}\
+</div>';
+
+  // ConfirmBox
+  // -------
+  // ConfirmBox 是一个有基础模板和样式的对话框组件。
+  var ConfirmBox = Dialog.extend({
+
+    attrs: {
+      title: '默认标题',
+
+      confirmTpl: '<a class="ui-dialog-button-orange" href="javascript:;">确定</a>',
+
+      cancelTpl: '<a class="ui-dialog-button-white" href="javascript:;">取消</a>',
+
+      message: '默认内容'
+    },
+
+    setup: function () {
+      ConfirmBox.superclass.setup.call(this);
+
+      var model = {
+        classPrefix: this.get('classPrefix'),
+        message: this.get('message'),
+        title: this.get('title'),
+        confirmTpl: this.get('confirmTpl'),
+        cancelTpl: this.get('cancelTpl'),
+        hasFoot: this.get('confirmTpl') || this.get('cancelTpl')
+      };
+      this.set('content', this.compile(template, model));
+    },
+
+    events: {
+      'click [data-role=confirm]': function (e) {
+        e.preventDefault();
+        this.trigger('confirm');
+      },
+      'click [data-role=cancel]': function (e) {
+        e.preventDefault();
+        this.trigger('cancel');
+        this.hide();
+      }
+    },
+
+    _onChangeMessage: function (val) {
+      this.$('[data-role=message]').html(val);
+    },
+
+    _onChangeTitle: function (val) {
+      this.$('[data-role=title]').html(val);
+    },
+
+    _onChangeConfirmTpl: function (val) {
+      this.$('[data-role=confirm]').html(val);
+    },
+
+    _onChangeCancelTpl: function (val) {
+      this.$('[data-role=cancel]').html(val);
+    }
+
+  });
+
+  ConfirmBox.alert = function (message, callback, options) {
+    var defaults = {
+      message: message,
+      title: '',
+      cancelTpl: '',
+      closeTpl: '',
+      onConfirm: function () {
+        callback && callback();
+        this.hide();
+      }
+    };
+    new ConfirmBox($.extend(null, defaults, options)).show().after('hide', function () {
+      this.destroy();
+    });
+  };
+
+  ConfirmBox.confirm = function (message, title, onConfirm, onCancel, options) {
+    // support confirm(message, title, onConfirm, options)
+    if (typeof onCancel === 'object' && !options) {
+      options = onCancel;
+      onCancel = null;
+    }
+
+    var defaults = {
+      message: message,
+      title: title || '确认框',
+      closeTpl: '',
+      onConfirm: function () {
+        onConfirm && onConfirm();
+        this.hide();
+      },
+      onCancel: function () {
+        onCancel && onCancel();
+        this.hide();
+      }
+    };
+    new ConfirmBox($.extend(null, defaults, options)).show().after('hide', function () {
+      this.destroy();
+    });
+  };
+
+  ConfirmBox.show = function (message, callback, options) {
+    var defaults = {
+      message: message,
+      title: '',
+      confirmTpl: false,
+      cancelTpl: false
+    };
+    new ConfirmBox($.extend(null, defaults, options)).show().before('hide', function () {
+      callback && callback();
+    }).after('hide', function () {
+      this.destroy();
+    });
+  };
+
+  Hui.ConfirmBox = ConfirmBox;
 
 })(jQuery)
