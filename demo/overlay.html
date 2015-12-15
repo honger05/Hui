@@ -58,13 +58,14 @@
     </div>
   </div>
 
-	<script src="../dist/lib/jquery.js"></script>
+	<script src="../dist/lib/jquery/jquery.js"></script>
+	<script src="../dist/lib/handlebars/handlebars.js"></script>
 	<script src="../dist/core-debug.js"></script>
 	<script src="../dist/hui-debug.js"></script>
 
 	<script>
 	var Overlay = Hui.Overlay;
-	var mask = Hui.Mask;
+	var mask = Overlay.Mask;
 
 
 	var o = new Overlay({

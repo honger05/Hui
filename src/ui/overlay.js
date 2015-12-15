@@ -1,4 +1,9 @@
 
+/**
+ * Overlay 继承了 Widget 的生命周期
+ * 实现了 可定位（Positionable）和 可层叠（Stackable）
+ */
+
 var Hui = Hui || {};
 
 (function($) {

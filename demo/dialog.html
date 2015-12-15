@@ -31,6 +31,9 @@
 	<button id="example_1">打开第一个对话框</button>
 	<button id="example_2" style="display: none">打开第二个对话框</button>
 
+	<button id="example1_1">打开对话框（ajax）</button>
+	<button id="example1_2">打开对话框（iframe）</button>
+
 	<script src="../dist/lib/jquery/jquery.js"></script>
 	<script src="../dist/lib/handlebars/handlebars.js"></script>
 	<script src="../dist/core-debug.js"></script>
@@ -99,6 +102,17 @@
 		    Confirmbox.alert('xxx');
 		});
 
+		// ?ajax 的方式加载
+		new Dialog({
+		    trigger: '#example1_1',
+		    content: './ajax-page.html?ajax'
+		});
+
+		// iframe 的方式加载
+		new Dialog({
+		    trigger: '#example1_2',
+		    content: './ajax-page.html'
+		});
 	</script>
 </body>
 </html>

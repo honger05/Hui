@@ -1,11 +1,18 @@
 
+/**
+ * Dialog 实现了 Overlay 的 可定位，可层叠。
+ * 扩展了 Templatable 可以让默认模板引擎 handlebars 来处理复杂模板。
+ * 实现了 显隐关闭、遮罩层、内嵌iframe、内容区域自定义 等功能，
+ * 而 ConfirmBox 就实现了它的自定义内容区域
+ */
+
 var Hui = Hui || {};
 
 (function($) {
   'use strict'
 
   var Overlay = Hui.Overlay,
-      mask = Hui.Mask,
+      mask = Hui.Overlay.Mask,
       Events = Hui.Events,
       Templatable = Hui.Templatable,
       Messenger = Hui.Messenger;

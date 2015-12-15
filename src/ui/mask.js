@@ -1,4 +1,8 @@
 
+/**
+ * Mask 是 Overlay 的一个具体实现，提供一个单例的全屏遮罩组件
+ */
+
 var Hui = Hui || {};
 
 (function($) {
@@ -54,6 +58,6 @@ var Hui = Hui || {};
   });
 
   // 单例
-  Hui.Mask = new Mask();
+  Hui.Overlay.Mask = new Mask();
 
 })(jQuery)

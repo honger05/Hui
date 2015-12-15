@@ -1,4 +1,9 @@
 
+/**
+ * Popup 继承了 Overlay 可定位，可层叠
+ * 实现了 可触发  声明式的视图逻辑
+ */
+
 var Hui = Hui || {};
 
 (function($) {

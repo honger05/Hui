@@ -681,6 +681,11 @@ var Hui = Hui || {};
 
 })(jQuery, Handlebars)
 
+/**
+ * Overlay 继承了 Widget 的生命周期
+ * 实现了 可定位（Positionable）和 可层叠（Stackable）
+ */
+
 var Hui = Hui || {};
 
 (function($) {
@@ -937,6 +942,10 @@ var Hui = Hui || {};
 })(jQuery)
 
 
+/**
+ * Mask 是 Overlay 的一个具体实现，提供一个单例的全屏遮罩组件
+ */
+
 var Hui = Hui || {};
 
 (function($) {
@@ -992,9 +1001,14 @@ var Hui = Hui || {};
   });
 
   // 单例
-  Hui.Mask = new Mask();
+  Hui.Overlay.Mask = new Mask();
 
 })(jQuery)
+
+/**
+ * Popup 继承了 Overlay 可定位，可层叠
+ * 实现了 可触发  声明式的视图逻辑
+ */
 
 var Hui = Hui || {};
 
@@ -1308,13 +1322,20 @@ var Hui = Hui || {};
 
 })(jQuery)
 
+/**
+ * Dialog 实现了 Overlay 的 可定位，可层叠。
+ * 扩展了 Templatable 可以让默认模板引擎 handlebars 来处理复杂模板。
+ * 实现了 显隐关闭、遮罩层、内嵌iframe、内容区域自定义 等功能，
+ * 而 ConfirmBox 就实现了它的自定义内容区域
+ */
+
 var Hui = Hui || {};
 
 (function($) {
   'use strict'
 
   var Overlay = Hui.Overlay,
-      mask = Hui.Mask,
+      mask = Hui.Overlay.Mask,
       Events = Hui.Events,
       Templatable = Hui.Templatable,
       Messenger = Hui.Messenger;
@@ -1821,6 +1842,13 @@ var Hui = Hui || {};
 
 })(jQuery)
 
+/**
+ * ConfirmBox 是 Dialog 抽象类 的一个具体实现，具体实现了 content 内容部分
+ * 定义了静态方法方便调用，使用完后移除 dom 元素
+ * trigger 参数使用声明式的视图逻辑
+ * show 方法又使用了命令式的视图逻辑
+ */
+
 var Hui = Hui || {};
 
 (function($) {
@@ -1829,25 +1857,25 @@ var Hui = Hui || {};
   var Dialog = Hui.Dialog;
 
   var template = '{{#if title}}\
-<div class="{{classPrefix}}-title" data-role="title">{{{title}}}</div>\
-{{/if}}\
-<div class="{{classPrefix}}-container">\
-    <div class="{{classPrefix}}-message" data-role="message">{{{message}}}</div>\
-    {{#if hasFoot}}\
-    <div class="{{classPrefix}}-operation" data-role="foot">\
-        {{#if confirmTpl}}\
-        <div class="{{classPrefix}}-confirm" data-role="confirm">\
-            {{{confirmTpl}}}\
-        </div>\
-        {{/if}}\
-        {{#if cancelTpl}}\
-        <div class="{{classPrefix}}-cancel" data-role="cancel">\
-            {{{cancelTpl}}}\
-        </div>\
-        {{/if}}\
-    </div>\
-    {{/if}}\
-</div>';
+                  <div class="{{classPrefix}}-title" data-role="title">{{{title}}}</div>\
+                  {{/if}}\
+                  <div class="{{classPrefix}}-container">\
+                      <div class="{{classPrefix}}-message" data-role="message">{{{message}}}</div>\
+                      {{#if hasFoot}}\
+                      <div class="{{classPrefix}}-operation" data-role="foot">\
+                          {{#if confirmTpl}}\
+                          <div class="{{classPrefix}}-confirm" data-role="confirm">\
+                              {{{confirmTpl}}}\
+                          </div>\
+                          {{/if}}\
+                          {{#if cancelTpl}}\
+                          <div class="{{classPrefix}}-cancel" data-role="cancel">\
+                              {{{cancelTpl}}}\
+                          </div>\
+                          {{/if}}\
+                      </div>\
+                      {{/if}}\
+                  </div>';
 
   // ConfirmBox
   // -------
@@ -1963,6 +1991,1143 @@ var Hui = Hui || {};
     });
   };
 
-  Hui.ConfirmBox = ConfirmBox;
+  Hui.Dialog.ConfirmBox = ConfirmBox;
 
 })(jQuery)
+ 
+// Based on Easing Equations (c) 2003 Robert Penner, all rights reserved.
+// This work is subject to the terms in
+// http://www.robertpenner.com/easing_terms_of_use.html
+// Preview: http://www.robertpenner.com/Easing/easing_demo.html
+//
+// Thanks to:
+//  - https://github.com/yui/yui3/blob/master/src/anim/js/anim-easing.js
+//  - https://github.com/gilmoreorless/jquery-easing-molecules
+
+!(function($) {
+    'use strict'
+
+    var PI = Math.PI;
+    var pow = Math.pow;
+    var sin = Math.sin;
+    var MAGIC_NUM = 1.70158; // Penner's magic number
+
+
+    /**
+     * 和 YUI 的 Easing 相比，这里的 Easing 进行了归一化处理，参数调整为：
+     * @param {Number} t Time value used to compute current value 0 =< t <= 1
+     * @param {Number} b Starting value  b = 0
+     * @param {Number} c Delta between start and end values  c = 1
+     * @param {Number} d Total length of animation d = 1
+     */
+    var Easing = {
+
+        /**
+         * Uniform speed between points.
+         */
+        easeNone: function(t) {
+            return t;
+        },
+
+        /**
+         * Begins slowly and accelerates towards end. (quadratic)
+         */
+        easeIn: function(t) {
+            return t * t;
+        },
+
+        /**
+         * Begins quickly and decelerates towards end.  (quadratic)
+         */
+        easeOut: function(t) {
+            return (2 - t) * t;
+        },
+
+        /**
+         * Begins slowly and decelerates towards end. (quadratic)
+         */
+        easeBoth: function(t) {
+            return (t *= 2) < 1 ?
+                    .5 * t * t :
+                    .5 * (1 - (--t) * (t - 2));
+        },
+
+        /**
+         * Begins slowly and accelerates towards end. (quartic)
+         */
+        easeInStrong: function(t) {
+            return t * t * t * t;
+        },
+        /**
+         * Begins quickly and decelerates towards end.  (quartic)
+         */
+        easeOutStrong: function(t) {
+            return 1 - (--t) * t * t * t;
+        },
+
+        /**
+         * Begins slowly and decelerates towards end. (quartic)
+         */
+        easeBothStrong: function(t) {
+            return (t *= 2) < 1 ?
+                    .5 * t * t * t * t :
+                    .5 * (2 - (t -= 2) * t * t * t);
+        },
+
+        /**
+         * Backtracks slightly, then reverses direction and moves to end.
+         */
+        backIn: function(t) {
+            if (t === 1) t -= .001;
+            return t * t * ((MAGIC_NUM + 1) * t - MAGIC_NUM);
+        },
+
+        /**
+         * Overshoots end, then reverses and comes back to end.
+         */
+        backOut: function(t) {
+            return (t -= 1) * t * ((MAGIC_NUM + 1) * t + MAGIC_NUM) + 1;
+        },
+
+        /**
+         * Backtracks slightly, then reverses direction, overshoots end,
+         * then reverses and comes back to end.
+         */
+        backBoth: function(t) {
+            var s = MAGIC_NUM;
+            var m = (s *= 1.525) + 1;
+
+            if ((t *= 2 ) < 1) {
+                return .5 * (t * t * (m * t - s));
+            }
+            return .5 * ((t -= 2) * t * (m * t + s) + 2);
+        },
+
+        /**
+         * Snap in elastic effect.
+         */
+        elasticIn: function(t) {
+            var p = .3, s = p / 4;
+            if (t === 0 || t === 1) return t;
+            return -(pow(2, 10 * (t -= 1)) * sin((t - s) * (2 * PI) / p));
+        },
+
+        /**
+         * Snap out elastic effect.
+         */
+        elasticOut: function(t) {
+            var p = .3, s = p / 4;
+            if (t === 0 || t === 1) return t;
+            return pow(2, -10 * t) * sin((t - s) * (2 * PI) / p) + 1;
+        },
+
+        /**
+         * Snap both elastic effect.
+         */
+        elasticBoth: function(t) {
+            var p = .45, s = p / 4;
+            if (t === 0 || (t *= 2) === 2) return t;
+
+            if (t < 1) {
+                return -.5 * (pow(2, 10 * (t -= 1)) *
+                        sin((t - s) * (2 * PI) / p));
+            }
+            return pow(2, -10 * (t -= 1)) *
+                    sin((t - s) * (2 * PI) / p) * .5 + 1;
+        },
+
+        /**
+         * Bounce off of start.
+         */
+        bounceIn: function(t) {
+            return 1 - Easing.bounceOut(1 - t);
+        },
+
+        /**
+         * Bounces off end.
+         */
+        bounceOut: function(t) {
+            var s = 7.5625, r;
+
+            if (t < (1 / 2.75)) {
+                r = s * t * t;
+            }
+            else if (t < (2 / 2.75)) {
+                r = s * (t -= (1.5 / 2.75)) * t + .75;
+            }
+            else if (t < (2.5 / 2.75)) {
+                r = s * (t -= (2.25 / 2.75)) * t + .9375;
+            }
+            else {
+                r = s * (t -= (2.625 / 2.75)) * t + .984375;
+            }
+
+            return r;
+        },
+
+        /**
+         * Bounces off start and end.
+         */
+        bounceBoth: function(t) {
+            if (t < .5) {
+                return Easing.bounceIn(t * 2) * .5;
+            }
+            return Easing.bounceOut(t * 2 - 1) * .5 + .5;
+        }
+    };
+
+    // 可以通过 require 获取
+    Hui.Easing = Easing;
+
+
+    // 也可以直接通过 jQuery.easing 来使用
+    $.extend($.easing, Easing);
+
+})(jQuery)
+
+!(function($, Plugins) {
+  'use strict'
+
+
+  // require('arale-easing');
+
+  var SCROLLX = 'scrollx';
+  var SCROLLY = 'scrolly';
+  var FADE = 'fade';
+
+
+  // 切换效果插件
+  Plugins.Effects = {
+    attrs: {
+      // 切换效果，可取 scrollx | scrolly | fade 或直接传入 effect function
+      effect: 'none',
+      easing: 'linear',
+      duration: 500
+    },
+
+    isNeeded: function () {
+      return this.get('effect') !== 'none';
+    },
+
+    install: function () {
+      var panels = this.get('panels');
+
+      // 注：
+      // 1. 所有 panel 的尺寸应该相同
+      //    最好指定第一个 panel 的 width 和 height
+      //    因为 Safari 下，图片未加载时，读取的 offsetHeight 等值会不对
+      // 2. 初始化 panels 样式
+      //    这些特效需要将 panels 都显示出来
+      // 3. 在 CSS 里，需要给 container 设定高宽和 overflow: hidden
+      panels.show();
+      var effect = this.get('effect');
+      var step = this.get('step');
+
+      var isFunction = $.isFunction(effect);
+
+      // 初始化滚动效果
+      if (!isFunction && effect.indexOf('scroll') === 0) {
+        var content = this.content;
+        var firstPanel = panels.eq(0);
+
+        // 设置定位信息，为滚动效果做铺垫
+        content.css('position', 'relative');
+
+        // 注：content 的父级不一定是 container
+        if (content.parent().css('position') === 'static') {
+          content.parent().css('position', 'relative');
+        }
+
+        // 水平排列
+        if (effect === SCROLLX) {
+          panels.css('float', 'left');
+          // 设置最大宽度，以保证有空间让 panels 水平排布
+          // 35791197px 为 360 下 width 最大数值
+          content.width('35791197px');
+        }
+
+        // 只有 scrollX, scrollY 需要设置 viewSize
+        // 其他情况下不需要
+        var viewSize = this.get('viewSize');
+        if (!viewSize[0]) {
+          viewSize[0] = firstPanel.outerWidth() * step;
+          viewSize[1] = firstPanel.outerHeight() * step;
+          this.set('viewSize', viewSize);
+        }
+
+        if (!viewSize[0]) {
+          throw new Error('Please specify viewSize manually');
+        }
+      }
+      // 初始化淡隐淡出效果
+      else if (!isFunction && effect === FADE) {
+        var activeIndex = this.get('activeIndex');
+        var min = activeIndex * step;
+        var max = min + step - 1;
+
+        panels.each(function (i, panel) {
+          var isActivePanel = i >= min && i <= max;
+          $(panel).css({
+            opacity: isActivePanel ? 1 : 0,
+            position: 'absolute',
+            zIndex: isActivePanel ? 9 : 1
+          });
+        });
+      }
+
+      // 覆盖 switchPanel 方法
+      this._switchPanel = function (panelInfo) {
+        var effect = this.get('effect');
+        var fn = $.isFunction(effect) ? effect : Effects[effect];
+        fn.call(this, panelInfo);
+      };
+    }
+  };
+
+
+  // 切换效果方法集
+  var Effects = {
+
+    // 淡隐淡现效果
+    fade: function (panelInfo) {
+      // 简单起见，目前不支持 step > 1 的情景。若需要此效果时，可修改结构来达成。
+      if (this.get('step') > 1) {
+        throw new Error('Effect "fade" only supports step === 1');
+      }
+
+      var fromPanel = panelInfo.fromPanels.eq(0);
+      var toPanel = panelInfo.toPanels.eq(0);
+
+      if (this.anim) {
+        // 立刻停止，以开始新的
+        this.anim.stop(false, true);
+      }
+
+      // 首先显示下一张
+      toPanel.css('opacity', 1);
+      toPanel.show();
+
+      if (panelInfo.fromIndex > -1) {
+        var that = this;
+        var duration = this.get('duration');
+        var easing = this.get('easing');
+
+        // 动画切换
+        this.anim = fromPanel.animate({
+          opacity: 0
+        }, duration, easing, function () {
+          that.anim = null; // free
+          // 切换 z-index
+          toPanel.css('zIndex', 9);
+          fromPanel.css('zIndex', 1);
+          fromPanel.css('display', 'none');
+        });
+      }
+      // 初始情况下没有必要动画切换
+      else {
+        toPanel.css('zIndex', 9);
+      }
+    },
+
+    // 水平/垂直滚动效果
+    scroll: function (panelInfo) {
+      var isX = this.get('effect') === SCROLLX;
+      var diff = this.get('viewSize')[isX ? 0 : 1] * panelInfo.toIndex;
+
+      var props = {};
+      props[isX ? 'left' : 'top'] = -diff + 'px';
+
+      if (this.anim) {
+        this.anim.stop();
+      }
+
+      if (panelInfo.fromIndex > -1) {
+        var that = this;
+        var duration = this.get('duration');
+        var easing = this.get('easing');
+
+        this.anim = this.content.animate(props, duration, easing, function () {
+          that.anim = null; // free
+        });
+      }
+      else {
+        this.content.css(props);
+      }
+    }
+  };
+
+  Effects[SCROLLY] = Effects.scroll;
+  Effects[SCROLLX] = Effects.scroll;
+  
+  Plugins.Effects.Effects = Effects;
+
+})(jQuery, (Hui.Plugins = Hui.Plugins || {}))
+
+!(function($, Plugins) {
+  'use strict'
+
+  var win = $(window);
+
+  // 自动播放插件
+  Plugins.Autoplay = {
+
+    attrs: {
+      autoplay: false,
+
+      // 自动播放的间隔时间
+      interval: 5000
+    },
+
+    isNeeded: function () {
+      return this.get('autoplay');
+    },
+
+    install: function () {
+      var element = this.element;
+      var EVENT_NS = '.' + this.cid;
+      var timer;
+      var interval = this.get('interval');
+      var that = this;
+
+      // start autoplay
+      start();
+
+      function start() {
+        // 停止之前的
+        stop();
+
+        // 设置状态
+        that.paused = false;
+
+        // 开始现在的
+        timer = setInterval(function () {
+          if (that.paused) return;
+          that.next();
+        }, interval);
+      }
+
+      function stop() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+        that.paused = true;
+      }
+
+      // public api
+      this.stop = stop;
+      this.start = start;
+
+      // 滚出可视区域后，停止自动播放
+      this._scrollDetect = throttle(function () {
+        that[isInViewport(element) ? 'start' : 'stop']();
+      });
+      win.on('scroll' + EVENT_NS, this._scrollDetect);
+
+      // 鼠标悬停时，停止自动播放
+      this.element.hover(stop, start);
+    },
+
+    destroy: function () {
+      var EVENT_NS = '.' + this.cid;
+
+      this.stop && this.stop();
+
+      if (this._scrollDetect) {
+        this._scrollDetect.stop();
+        win.off('scroll' + EVENT_NS);
+      }
+    }
+  };
+
+
+  // Helpers
+  // -------
+
+  function throttle(fn, ms) {
+    ms = ms || 200;
+    var throttleTimer;
+
+    function f() {
+      f.stop();
+      throttleTimer = setTimeout(fn, ms);
+    }
+
+    f.stop = function () {
+      if (throttleTimer) {
+        clearTimeout(throttleTimer);
+        throttleTimer = 0;
+      }
+    };
+
+    return f;
+  }
+
+
+  function isInViewport(element) {
+    var scrollTop = win.scrollTop();
+    var scrollBottom = scrollTop + win.height();
+    var elementTop = element.offset().top;
+    var elementBottom = elementTop + element.height();
+
+    // 只判断垂直位置是否在可视区域，不判断水平。只有要部分区域在可视区域，就返回 true
+    return elementTop < scrollBottom && elementBottom > scrollTop;
+  }
+
+})(jQuery, (Hui.Plugins = Hui.Plugins || {}))
+
+
+!(function($, Plugins) {
+  'use strict'
+
+  var SCROLLX = 'scrollx';
+  var SCROLLY = 'scrolly';
+  var Effects = Plugins.Effects;
+
+
+  // 无缝循环滚动插件
+  Plugins.Circular = {
+    // 仅在开启滚动效果时需要
+    isNeeded: function () {
+      var effect = this.get('effect');
+      var circular = this.get('circular');
+      return circular && (effect === SCROLLX || effect === SCROLLY);
+    },
+
+    install: function () {
+      this._scrollType = this.get('effect');
+      this.set('effect', 'scrollCircular');
+    }
+  };
+
+  Effects.scrollCircular = function (panelInfo) {
+    var toIndex = panelInfo.toIndex;
+    var fromIndex = panelInfo.fromIndex;
+    var isX = this._scrollType === SCROLLX;
+    var prop = isX ? 'left' : 'top';
+    var viewDiff = this.get('viewSize')[isX ? 0 : 1];
+    var diff = -viewDiff * toIndex;
+
+    var props = {};
+    props[prop] = diff + 'px';
+
+    // 开始动画
+    if (fromIndex > -1) {
+
+      // 开始动画前，先停止掉上一动画
+      if (this.anim) {
+        this.anim.stop(false, true);
+      }
+
+      var len = this.get('length');
+      // scroll 的 0 -> len-1 应该是正常的从 0->1->2->.. len-1 的切换
+      var isBackwardCritical = fromIndex === 0 && toIndex === len - 1;
+      // len-1 -> 0
+      var isForwardCritical = fromIndex === len - 1 && toIndex === 0;
+      var isBackward = this._isBackward === undefined ? toIndex < fromIndex : this._isBackward;
+      // isBackward 使用下面的判断方式, 会在 nav 上 trigger 从 0 -> len-1 切换时,
+      // 不经过 0->1->2->...-> len-1, 而是 0 反向切换到 len-1;
+      // 而上面的判断方式, nav 上的 trigger 切换是正常的, 只有调用 prev 才从 0 反向切换到 len-1;
+      //var isBackward = isBackwardCritical ||
+      //    (!isForwardCritical && toIndex < fromIndex);
+      // 从第一个反向滚动到最后一个 or 从最后一个正向滚动到第一个
+      var isCritical = (isBackward && isBackwardCritical) || (!isBackward && isForwardCritical);
+
+      // 在临界点时，先调整 panels 位置
+      if (isCritical) {
+        diff = adjustPosition.call(this, isBackward, prop, viewDiff);
+        props[prop] = diff + 'px';
+      }
+
+      var duration = this.get('duration');
+      var easing = this.get('easing');
+      var that = this;
+
+      this.anim = this.content.animate(props, duration, easing, function () {
+        that.anim = null; // free
+        // 复原位置
+        if (isCritical) {
+          resetPosition.call(that, isBackward, prop, viewDiff);
+        }
+      });
+    }
+    // 初始化
+    else {
+      this.content.css(props);
+    }
+  };
+
+  // 调整位置
+
+
+  function adjustPosition(isBackward, prop, viewDiff) {
+    var step = this.get('step');
+    var len = this.get('length');
+    var start = isBackward ? len - 1 : 0;
+    var from = start * step;
+    var to = (start + 1) * step;
+    var diff = isBackward ? viewDiff : -viewDiff * len;
+    var panelDiff = isBackward ? -viewDiff * len : viewDiff * len;
+
+    // 调整 panels 到下一个视图中
+    var toPanels = $(this.get('panels').get().slice(from, to));
+    toPanels.css('position', 'relative');
+    toPanels.css(prop, panelDiff + 'px');
+
+    // 返回偏移量
+    return diff;
+  }
+
+  // 复原位置
+
+
+  function resetPosition(isBackward, prop, viewDiff) {
+    var step = this.get('step');
+    var len = this.get('length');
+    var start = isBackward ? len - 1 : 0;
+    var from = start * step;
+    var to = (start + 1) * step;
+
+    // 滚动完成后，复位到正常状态
+    var toPanels = $(this.get('panels').get().slice(from, to));
+    toPanels.css('position', '');
+    toPanels.css(prop, '');
+
+    // 瞬移到正常位置
+    this.content.css(prop, isBackward ? -viewDiff * (len - 1) : '');
+  }
+
+})(jQuery, (Hui.Plugins = Hui.Plugins || {}))
+// Switchable
+// -----------
+// 可切换组件，核心特征是：有一组可切换的面板（Panel），可通过触点（Trigger）来触发。
+// 感谢：
+//  - https://github.com/kissyteam/kissy/tree/6707ecc4cdfddd59e21698c8eb4a50b65dbe7632/src/switchable
+
+var Hui = Hui || {};
+
+(function($) {
+  'use strict'
+
+  var Widget = Hui.Widget;
+
+  var Effects = Hui.Plugins.Effects;
+  var Autoplay = Hui.Plugins.Autoplay;
+  var Circular = Hui.Plugins.Circular;
+
+  var Switchable = Widget.extend({
+    attrs: {
+
+      // 用户传入的 triggers 和 panels
+      // 可以是 Selector、jQuery 对象、或 DOM 元素集
+      triggers: {
+        value: [],
+        getter: function (val) {
+          return $(val);
+        }
+      },
+
+      panels: {
+        value: [],
+        getter: function (val) {
+          return $(val);
+        }
+      },
+
+      classPrefix: 'ui-switchable',
+
+      // 是否包含 triggers，用于没有传入 triggers 时，是否自动生成的判断标准
+      hasTriggers: true,
+      // 触发类型
+      triggerType: 'hover',
+      // or 'click'
+      // 触发延迟
+      delay: 100,
+
+      // 初始切换到哪个面板
+      activeIndex: {
+        value: 0,
+        setter: function (val) {
+          return parseInt(val) || 0;
+        }
+      },
+
+      // 一屏内有多少个 panels
+      step: 1,
+      // 有多少屏
+      length: {
+        readOnly: true,
+        getter: function () {
+          return Math.ceil(this.get('panels').length / this.get('step'));
+        }
+      },
+
+      // 可见视图区域的大小。一般不需要设定此值，仅当获取值不正确时，用于手工指定大小
+      viewSize: [],
+
+      activeTriggerClass: {
+        getter: function (val) {
+          return val ? val : this.get("classPrefix") + '-active';
+        }
+      }
+    },
+
+    setup: function () {
+      this._initConstClass();
+      this._initElement();
+
+      var role = this._getDatasetRole();
+      this._initPanels(role);
+      // 配置中的 triggers > dataset > 自动生成
+      this._initTriggers(role);
+      this._bindTriggers();
+      this._initPlugins();
+
+      // 渲染默认初始状态
+      this.render();
+    },
+
+    _initConstClass: function () {
+      this.CONST = constClass(this.get('classPrefix'));
+    },
+    _initElement: function () {
+      this.element.addClass(this.CONST.UI_SWITCHABLE);
+    },
+
+    // 从 HTML 标记中获取各个 role, 替代原来的 markupType
+    _getDatasetRole: function () {
+      var self = this;
+      var role = {};
+      var roles = ['trigger', 'panel', 'nav', 'content'];
+      $.each(roles, function (index, key) {
+        var elems = self.$('[data-role=' + key + ']');
+        if (elems.length) {
+          role[key] = elems;
+        }
+      });
+      return role;
+    },
+
+    _initPanels: function (role) {
+      var panels = this.get('panels');
+
+      // 先获取 panels 和 content
+      if (panels.length > 0) {} else if (role.panel) {
+        this.set('panels', panels = role.panel);
+      } else if (role.content) {
+        this.set('panels', panels = role.content.find('> *'));
+        this.content = role.content;
+      }
+
+      if (panels.length === 0) {
+        throw new Error('panels.length is ZERO');
+      }
+      if (!this.content) {
+        this.content = panels.parent();
+      }
+      this.content.addClass(this.CONST.CONTENT_CLASS);
+      this.get('panels').addClass(this.CONST.PANEL_CLASS);
+    },
+
+    _initTriggers: function (role) {
+      var triggers = this.get('triggers');
+
+      // 再获取 triggers 和 nav
+      if (triggers.length > 0) {}
+      // attr 里没找到时，才根据 data-role 来解析
+      else if (role.trigger) {
+        this.set('triggers', triggers = role.trigger);
+      } else if (role.nav) {
+        triggers = role.nav.find('> *');
+
+        // 空的 nav 标记
+        if (triggers.length === 0) {
+          triggers = generateTriggersMarkup(
+          this.get('length'), this.get('activeIndex'), this.get('activeTriggerClass'), true).appendTo(role.nav);
+        }
+        this.set('triggers', triggers);
+
+        this.nav = role.nav;
+      }
+      // 用户没有传入 triggers，也没有通过 data-role 指定时，如果
+      // hasTriggers 为 true，则自动生成 triggers
+      else if (this.get('hasTriggers')) {
+        this.nav = generateTriggersMarkup(
+        this.get('length'), this.get('activeIndex'), this.get('activeTriggerClass')).appendTo(this.element);
+        this.set('triggers', triggers = this.nav.children());
+      }
+
+      if (!this.nav && triggers.length) {
+        this.nav = triggers.parent();
+      }
+
+      this.nav && this.nav.addClass(this.CONST.NAV_CLASS);
+      triggers.addClass(this.CONST.TRIGGER_CLASS).each(function (i, trigger) {
+        $(trigger).data('value', i);
+      });
+    },
+
+    _bindTriggers: function () {
+      var that = this,
+          triggers = this.get('triggers');
+
+      if (this.get('triggerType') === 'click') {
+        triggers.click(focus);
+      }
+      // hover
+      else {
+        triggers.hover(focus, leave);
+      }
+
+      function focus(ev) {
+        that._onFocusTrigger(ev.type, $(this).data('value'));
+      }
+
+      function leave() {
+        clearTimeout(that._switchTimer);
+      }
+    },
+
+    _onFocusTrigger: function (type, index) {
+      var that = this;
+
+      // click or tab 键激活时
+      if (type === 'click') {
+        this.switchTo(index);
+      }
+
+      // hover
+      else {
+        this._switchTimer = setTimeout(function () {
+          that.switchTo(index);
+        }, this.get('delay'));
+      }
+    },
+
+    _initPlugins: function () {
+      this._plugins = [];
+
+      this._plug(Effects);
+      this._plug(Autoplay);
+      this._plug(Circular);
+    },
+    // 切换到指定 index
+    switchTo: function (toIndex) {
+      this.set('activeIndex', toIndex);
+    },
+
+    // change 事件触发的前提是当前值和先前值不一致, 所以无需验证 toIndex !== fromIndex
+    _onRenderActiveIndex: function (toIndex, fromIndex) {
+      this._switchTo(toIndex, fromIndex);
+    },
+
+    _switchTo: function (toIndex, fromIndex) {
+      this.trigger('switch', toIndex, fromIndex);
+      this._switchTrigger(toIndex, fromIndex);
+      this._switchPanel(this._getPanelInfo(toIndex, fromIndex));
+      this.trigger('switched', toIndex, fromIndex);
+
+      // 恢复手工向后切换标识
+      this._isBackward = undefined;
+    },
+
+    _switchTrigger: function (toIndex, fromIndex) {
+      var triggers = this.get('triggers');
+      if (triggers.length < 1) return;
+
+      triggers.eq(fromIndex).removeClass(this.get('activeTriggerClass'));
+      triggers.eq(toIndex).addClass(this.get('activeTriggerClass'));
+    },
+
+    _switchPanel: function (panelInfo) {
+      // 默认是最简单的切换效果：直接隐藏/显示
+      panelInfo.fromPanels.hide();
+      panelInfo.toPanels.show();
+    },
+
+    _getPanelInfo: function (toIndex, fromIndex) {
+      var panels = this.get('panels').get();
+      var step = this.get('step');
+
+      var fromPanels, toPanels;
+
+      // 初始情况下 fromIndex 为 undefined
+      if (fromIndex > -1) {
+        fromPanels = panels.slice(fromIndex * step, (fromIndex + 1) * step);
+      }
+
+      toPanels = panels.slice(toIndex * step, (toIndex + 1) * step);
+
+      return {
+        toIndex: toIndex,
+        fromIndex: fromIndex,
+        toPanels: $(toPanels),
+        fromPanels: $(fromPanels)
+      };
+    },
+
+    // 切换到上一视图
+    prev: function () {
+      //  设置手工向后切换标识, 外部调用 prev 一样
+      this._isBackward = true;
+
+      var fromIndex = this.get('activeIndex');
+      // 考虑循环切换的情况
+      var index = (fromIndex - 1 + this.get('length')) % this.get('length');
+      this.switchTo(index);
+    },
+
+    // 切换到下一视图
+    next: function () {
+      this._isBackward = false;
+
+      var fromIndex = this.get('activeIndex');
+      var index = (fromIndex + 1) % this.get('length');
+      this.switchTo(index);
+    },
+
+    _plug: function (plugin) {
+      var pluginAttrs = plugin.attrs;
+
+      if (pluginAttrs) {
+        for (var key in pluginAttrs) {
+          if (pluginAttrs.hasOwnProperty(key) &&
+          // 不覆盖用户传入的配置
+          !(key in this.attrs)) {
+            this.set(key, pluginAttrs[key]);
+          }
+        }
+      }
+      if (!plugin.isNeeded.call(this)) return;
+
+
+      if (plugin.install) {
+        plugin.install.call(this);
+      }
+
+      this._plugins.push(plugin);
+    },
+
+
+    destroy: function () {
+      // todo: events
+      var that = this;
+
+      $.each(this._plugins, function (i, plugin) {
+        if (plugin.destroy) {
+          plugin.destroy.call(that);
+        }
+      });
+
+      Switchable.superclass.destroy.call(this);
+    }
+  });
+
+  Hui.Switchable = Switchable;
+
+
+  // Helpers
+  // -------
+
+  function generateTriggersMarkup(length, activeIndex, activeTriggerClass, justChildren) {
+    var nav = $('<ul>');
+
+    for (var i = 0; i < length; i++) {
+      var className = i === activeIndex ? activeTriggerClass : '';
+
+      $('<li>', {
+        'class': className,
+        'html': i + 1
+      }).appendTo(nav);
+    }
+
+    return justChildren ? nav.children() : nav;
+  }
+
+
+  // 内部默认的 className
+
+
+  function constClass(classPrefix) {
+    return {
+      UI_SWITCHABLE: classPrefix || '',
+      NAV_CLASS: classPrefix ? classPrefix + '-nav' : '',
+      CONTENT_CLASS: classPrefix ? classPrefix + '-content' : '',
+      TRIGGER_CLASS: classPrefix ? classPrefix + '-trigger' : '',
+      PANEL_CLASS: classPrefix ? classPrefix + '-panel' : '',
+      PREV_BTN_CLASS: classPrefix ? classPrefix + '-prev-btn' : '',
+      NEXT_BTN_CLASS: classPrefix ? classPrefix + '-next-btn' : ''
+    }
+  }
+
+})(jQuery)
+
+
+// 展现型标签页组件
+Hui.Switchable.Tabs = Hui.Switchable.extend({});
+
+// 卡盘轮播组件
+Hui.Switchable.Slide = Hui.Switchable.extend({
+  attrs: {
+    autoplay: true,
+    circular: true
+  }
+});
+
+!(function($) {
+  'use strict'
+
+  var Switchable = Hui.Switchable;
+
+  // 旋转木马组件
+  Hui.Switchable.Carousel = Switchable.extend({
+
+    attrs: {
+      circular: true,
+
+      prevBtn: {
+        getter: function (val) {
+          return $(val).eq(0);
+        }
+      },
+
+      nextBtn: {
+        getter: function (val) {
+          return $(val).eq(0);
+        }
+      },
+      disabledBtnClass: {
+        getter: function (val) {
+          return val ? val : this.get("classPrefix") + '-disabled-btn';
+        }
+      }
+    },
+
+    _initTriggers: function (role) {
+      Switchable.prototype._initTriggers.call(this, role);
+
+      // attr 里没找到时，才根据 data-role 来解析
+      var prevBtn = this.get('prevBtn');
+      var nextBtn = this.get('nextBtn');
+
+      if (!prevBtn[0] && role.prev) {
+        prevBtn = role.prev;
+        this.set('prevBtn', prevBtn);
+      }
+
+      if (!nextBtn[0] && role.next) {
+        nextBtn = role.next;
+        this.set('nextBtn', nextBtn);
+      }
+
+      prevBtn.addClass(this.CONST.PREV_BTN_CLASS);
+      nextBtn.addClass(this.CONST.NEXT_BTN_CLASS);
+    },
+
+    _getDatasetRole: function () {
+      var role = Switchable.prototype._getDatasetRole.call(this);
+
+      var self = this;
+      var roles = ['next', 'prev'];
+      $.each(roles, function (index, key) {
+        var elems = self.$('[data-role=' + key + ']');
+        if (elems.length) {
+          role[key] = elems;
+        }
+      });
+      return role;
+    },
+
+    _bindTriggers: function () {
+      Switchable.prototype._bindTriggers.call(this);
+
+      var that = this;
+      var circular = this.get('circular');
+
+      this.get('prevBtn').click(function (ev) {
+        ev.preventDefault();
+        if (circular || that.get('activeIndex') > 0) {
+          that.prev();
+        }
+      });
+
+      this.get('nextBtn').click(function (ev) {
+        ev.preventDefault();
+        var len = that.get('length') - 1;
+        if (circular || that.get('activeIndex') < len) {
+          that.next();
+        }
+      });
+
+      // 注册 switch 事件，处理 prevBtn/nextBtn 的 disable 状态
+      // circular = true 时，无需处理
+      if (!circular) {
+        this.on('switch', function (toIndex) {
+          that._updateButtonStatus(toIndex);
+        });
+      }
+    },
+
+    _updateButtonStatus: function (toIndex) {
+      var prevBtn = this.get('prevBtn');
+      var nextBtn = this.get('nextBtn');
+      var disabledBtnClass = this.get("disabledBtnClass");
+
+      prevBtn.removeClass(disabledBtnClass);
+      nextBtn.removeClass(disabledBtnClass);
+
+      if (toIndex === 0) {
+        prevBtn.addClass(disabledBtnClass);
+      }
+      else if (toIndex === this.get('length') - 1) {
+        nextBtn.addClass(disabledBtnClass);
+      }
+    }
+  });
+
+})(jQuery)
+
+!(function(Hui) {
+  'use strict'
+
+  var Switchable = Hui.Switchable;
+
+
+  // 手风琴组件
+  var Accordion = Switchable.extend({
+    attrs: {
+      triggerType: 'click',
+
+      // 是否运行展开多个
+      multiple: false,
+
+      autoplay: false
+    },
+    switchTo: function (toIndex) {
+      if (this.get('multiple')) {
+        this._switchTo(toIndex, toIndex);
+      } else {
+        Switchable.prototype.switchTo.call(this, toIndex);
+      }
+    },
+
+    _switchTrigger: function (toIndex, fromIndex) {
+      if (this.get('multiple')) {
+        this.get('triggers').eq(toIndex).toggleClass(this.get('activeTriggerClass'));
+      } else {
+        Switchable.prototype._switchTrigger.call(this, toIndex, fromIndex);
+      }
+    },
+
+    _switchPanel: function (panelInfo) {
+      if (this.get('multiple')) {
+        panelInfo.toPanels.toggle();
+      } else {
+        Switchable.prototype._switchPanel.call(this, panelInfo);
+      }
+    }
+  });
+
+  Hui.Switchable.Accordion = Accordion;
+
+})(Hui)
