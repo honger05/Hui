@@ -40,7 +40,7 @@
     overflow: hidden;
 }
 #slide-demo-1 .ui-switchable-content .ui-switchable-panel img {
-    margin-left: -660px;
+    margin-left: 0px;
 }
 #slide-demo-1 .ui-switchable-nav {
     position: absolute;
@@ -89,7 +89,7 @@ var Slide = Hui.Switchable.Slide;
 new Slide({
     element: '#slide-demo-1',
     effect: 'scrollx',
-    interval: 3000
+    interval: 11113000
 }).render();
 ````
 
@@ -350,3 +350,4 @@ var slide = new Slide({
     activeIndex: 1
 }).render();
 ````
+
