@@ -1,0 +1,16 @@
+{
+    "source": "content",
+    "output": "_site",
+    "theme": "_themes/one",
+    "sitename": "Hui",
+    "permalink": "{{directory}}/{{filename}}.html",
+    "navigation": [
+	    {"link": "switchable/index.html", "title": "switchable"}
+	  ],
+	  "footer": "Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.",
+    "writers": [
+        "nico.PostWriter",
+        "nico.FileWriter",
+        "nico.StaticWriter"
+    ]
+}

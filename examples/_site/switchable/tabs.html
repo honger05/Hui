@@ -1,0 +1,341 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>Tabs - 普通标签页</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="./">switchable</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">Tabs - 普通标签页</h1>
+  <div class="entry-content" itemprop="articleBody"><script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+<style>
+.tab-demo {
+    margin: 20px 0;
+    padding: 0;
+}
+.hidden {
+    display: none;
+}
+</style>
+
+
+<h3 id="常规设置">常规设置</h3><style type="text/css">#tab-demo-1 {
+    font: 14px/1.5 'Xin Gothic', 'PT Sans', 'Hiragino Sans GB', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    position: relative;
+    width: 750px;
+    padding-top: 29px;
+}
+
+#tab-demo-1 .ui-switchable-nav {
+    position: absolute;
+    top: 0;
+    left: 20px;
+    margin: 0;
+    padding: 0;
+    z-index: 99;
+    list-style: none;
+}
+
+#tab-demo-1 .ui-switchable-nav li {
+    float: left;
+    width: 130px;
+    height: 27px;
+    line-height: 21px;
+    text-align: center;
+    background: url(assets/tabs-sprite.gif) no-repeat 0 6px;
+    margin-right: 3px;
+    padding-top: 8px;
+    cursor: pointer;
+    list-style: none;
+}
+
+#tab-demo-1 .ui-switchable-nav .ui-switchable-active {
+    background-position: 0 -40px;
+    cursor: default;
+}
+
+#tab-demo-1 .ui-switchable-content {
+    position: relative;
+    height: 150px;
+    padding: 20px;
+    border: 1px solid #AEC7E5;
+}</style><div class="highlight"><pre><code class="css"><span class="id">#tab-demo-1</span> <span class="rules">{
+    <span class="rule"><span class="attribute">font</span>:<span class="value"> <span class="number">14</span>px/<span class="number">1.5</span> <span class="string">'Xin Gothic'</span>, <span class="string">'PT Sans'</span>, <span class="string">'Hiragino Sans GB'</span>, <span class="string">'Helvetica Neue'</span>, Helvetica, Arial, sans-serif</span></span>;
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">750</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding-top</span>:<span class="value"> <span class="number">29</span>px</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#tab-demo-1</span> <span class="class">.ui-switchable-nav</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> absolute</span></span>;
+    <span class="rule"><span class="attribute">top</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">left</span>:<span class="value"> <span class="number">20</span>px</span></span>;
+    <span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">z-index</span>:<span class="value"> <span class="number">99</span></span></span>;
+    <span class="rule"><span class="attribute">list-style</span>:<span class="value"> none</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#tab-demo-1</span> <span class="class">.ui-switchable-nav</span> <span class="tag">li</span> <span class="rules">{
+    <span class="rule"><span class="attribute">float</span>:<span class="value"> left</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">130</span>px</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">27</span>px</span></span>;
+    <span class="rule"><span class="attribute">line-height</span>:<span class="value"> <span class="number">21</span>px</span></span>;
+    <span class="rule"><span class="attribute">text-align</span>:<span class="value"> center</span></span>;
+    <span class="rule"><span class="attribute">background</span>:<span class="value"> <span class="function">url(assets/tabs-sprite.gif)</span> no-repeat <span class="number">0</span> <span class="number">6</span>px</span></span>;
+    <span class="rule"><span class="attribute">margin-right</span>:<span class="value"> <span class="number">3</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding-top</span>:<span class="value"> <span class="number">8</span>px</span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> pointer</span></span>;
+    <span class="rule"><span class="attribute">list-style</span>:<span class="value"> none</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#tab-demo-1</span> <span class="class">.ui-switchable-nav</span> <span class="class">.ui-switchable-active</span> <span class="rules">{
+    <span class="rule"><span class="attribute">background-position</span>:<span class="value"> <span class="number">0</span> -<span class="number">40</span>px</span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> default</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#tab-demo-1</span> <span class="class">.ui-switchable-content</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">150</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">20</span>px</span></span>;
+    <span class="rule"><span class="attribute">border</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#AEC7E5</span></span></span>;
+<span class="rule">}</span></span></code></pre></div><div class="nico-insert-code"><div id="tab-demo-1" class="tab-demo">
+    <ul class="ui-switchable-nav">
+        <li>标题 A</li>
+        <li>标题 B</li>
+        <li>标题 C</li>
+        <li>标题 D</li>
+    </ul>
+    <div class="ui-switchable-content">
+        <div class="hidden">
+            内容 A
+            <pre>
+              - 在当前 trigger 中 mouseover/mouseout, click, focus, 不触发
+              - 鼠标快速滑过非当前 trigger, 不触发
+              - mouseover 到非当前 trigger, 停留时间到达延迟时，触发
+              - click 或 Tab 切换到 trigger, 立即触发
+              - switch / switched 事件的触发
+            </pre>
+        </div>
+        <div class="hidden">内容 B</div>
+        <div class="hidden">内容 C</div>
+        <div class="hidden">内容 D</div>
+    </div>
+</div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"tab-demo-1"</span> <span class="attribute">class</span>=<span class="value">"tab-demo"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">ul</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-nav"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">li</span>&gt;</span>标题 A<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">li</span>&gt;</span>标题 B<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">li</span>&gt;</span>标题 C<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">li</span>&gt;</span>标题 D<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">ul</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-content"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"hidden"</span>&gt;</span>
+            内容 A
+            <span class="tag">&lt;<span class="title">pre</span>&gt;</span>
+              - 在当前 trigger 中 mouseover/mouseout, click, focus, 不触发
+              - 鼠标快速滑过非当前 trigger, 不触发
+              - mouseover 到非当前 trigger, 停留时间到达延迟时，触发
+              - click 或 Tab 切换到 trigger, 立即触发
+              - switch / switched 事件的触发
+            <span class="tag">&lt;/<span class="title">pre</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"hidden"</span>&gt;</span>内容 B<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"hidden"</span>&gt;</span>内容 C<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"hidden"</span>&gt;</span>内容 D<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var Tabs = Hui.Switchable.Tabs;
+var tabs1 = new Tabs({
+    element: '#tab-demo-1',
+    triggers: '#tab-demo-1 .ui-switchable-nav li',
+    panels: '#tab-demo-1 .ui-switchable-content div',
+    activeIndex: 2,
+    effect: 'fade'
+});
+
+setTimeout(function() {
+    tabs1.set("activeIndex", 0);
+}, 3000);</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Tabs = Hui.Switchable.Tabs;
+<span class="keyword">var</span> tabs1 = <span class="keyword">new</span> Tabs({
+    element: <span class="string">'#tab-demo-1'</span>,
+    triggers: <span class="string">'#tab-demo-1 .ui-switchable-nav li'</span>,
+    panels: <span class="string">'#tab-demo-1 .ui-switchable-content div'</span>,
+    activeIndex: <span class="number">2</span>,
+    effect: <span class="string">'fade'</span>
+});
+
+setTimeout(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    tabs1.set(<span class="string">"activeIndex"</span>, <span class="number">0</span>);
+}, <span class="number">3000</span>);</code></pre></div><h3 id="高度自适应">高度自适应</h3><p>注意: 内容区高度自适应时, 请不要设置 <code>effect</code> 和 <code>.ui-switchable-content</code> 的高度.</p>
+<style type="text/css">#tab-demo-2 {
+    font: 14px/1.5 'Xin Gothic', 'PT Sans', 'Hiragino Sans GB', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    position: relative;
+    width: 750px;
+    padding-top: 29px;
+}
+
+#tab-demo-2 .ui-switchable-nav {
+    position: absolute;
+    top: 0;
+    left: 20px;
+    margin: 0;
+    padding: 0;
+    z-index: 99;
+    list-style: none;
+}
+
+#tab-demo-2 .ui-switchable-nav li {
+    float: left;
+    width: 130px;
+    height: 27px;
+    line-height: 21px;
+    text-align: center;
+    background: url(assets/tabs-sprite.gif) no-repeat 0 6px;
+    margin-right: 3px;
+    padding-top: 8px;
+    cursor: pointer;
+    list-style: none;
+}
+
+#tab-demo-2 .ui-switchable-nav .ui-switchable-active {
+    background-position: 0 -40px;
+    cursor: default;
+}
+
+#tab-demo-2 .ui-switchable-content {
+    position: relative;
+    padding: 20px;
+    border: 1px solid #AEC7E5;
+}</style><div class="highlight"><pre><code class="css"><span class="id">#tab-demo-2</span> <span class="rules">{
+    <span class="rule"><span class="attribute">font</span>:<span class="value"> <span class="number">14</span>px/<span class="number">1.5</span> <span class="string">'Xin Gothic'</span>, <span class="string">'PT Sans'</span>, <span class="string">'Hiragino Sans GB'</span>, <span class="string">'Helvetica Neue'</span>, Helvetica, Arial, sans-serif</span></span>;
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">750</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding-top</span>:<span class="value"> <span class="number">29</span>px</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#tab-demo-2</span> <span class="class">.ui-switchable-nav</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> absolute</span></span>;
+    <span class="rule"><span class="attribute">top</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">left</span>:<span class="value"> <span class="number">20</span>px</span></span>;
+    <span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">z-index</span>:<span class="value"> <span class="number">99</span></span></span>;
+    <span class="rule"><span class="attribute">list-style</span>:<span class="value"> none</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#tab-demo-2</span> <span class="class">.ui-switchable-nav</span> <span class="tag">li</span> <span class="rules">{
+    <span class="rule"><span class="attribute">float</span>:<span class="value"> left</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">130</span>px</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">27</span>px</span></span>;
+    <span class="rule"><span class="attribute">line-height</span>:<span class="value"> <span class="number">21</span>px</span></span>;
+    <span class="rule"><span class="attribute">text-align</span>:<span class="value"> center</span></span>;
+    <span class="rule"><span class="attribute">background</span>:<span class="value"> <span class="function">url(assets/tabs-sprite.gif)</span> no-repeat <span class="number">0</span> <span class="number">6</span>px</span></span>;
+    <span class="rule"><span class="attribute">margin-right</span>:<span class="value"> <span class="number">3</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding-top</span>:<span class="value"> <span class="number">8</span>px</span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> pointer</span></span>;
+    <span class="rule"><span class="attribute">list-style</span>:<span class="value"> none</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#tab-demo-2</span> <span class="class">.ui-switchable-nav</span> <span class="class">.ui-switchable-active</span> <span class="rules">{
+    <span class="rule"><span class="attribute">background-position</span>:<span class="value"> <span class="number">0</span> -<span class="number">40</span>px</span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> default</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#tab-demo-2</span> <span class="class">.ui-switchable-content</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">20</span>px</span></span>;
+    <span class="rule"><span class="attribute">border</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#AEC7E5</span></span></span>;
+<span class="rule">}</span></span></code></pre></div><div class="nico-insert-code"><div id="tab-demo-2" class="tab-demo">
+    <ul class="ui-switchable-nav">
+        <li>标题 A</li>
+        <li>标题 B</li>
+        <li>标题 C</li>
+        <li>标题 D</li>
+    </ul>
+    <div class="ui-switchable-content">
+        <div class="hidden">
+            内容 A
+            <pre>
+              - 在当前 trigger 中 mouseover/mouseout, click, focus, 不触发
+              - 鼠标快速滑过非当前 trigger, 不触发
+              - mouseover 到非当前 trigger, 停留时间到达延迟时，触发
+              - click 或 Tab 切换到 trigger, 立即触发
+              - switch / switched 事件的触发
+            </pre>
+        </div>
+        <div class="hidden">内容 B</div>
+        <div class="hidden">内容 C</div>
+        <div class="hidden">内容 D</div>
+    </div>
+</div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"tab-demo-2"</span> <span class="attribute">class</span>=<span class="value">"tab-demo"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">ul</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-nav"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">li</span>&gt;</span>标题 A<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">li</span>&gt;</span>标题 B<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">li</span>&gt;</span>标题 C<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">li</span>&gt;</span>标题 D<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">ul</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-content"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"hidden"</span>&gt;</span>
+            内容 A
+            <span class="tag">&lt;<span class="title">pre</span>&gt;</span>
+              - 在当前 trigger 中 mouseover/mouseout, click, focus, 不触发
+              - 鼠标快速滑过非当前 trigger, 不触发
+              - mouseover 到非当前 trigger, 停留时间到达延迟时，触发
+              - click 或 Tab 切换到 trigger, 立即触发
+              - switch / switched 事件的触发
+            <span class="tag">&lt;/<span class="title">pre</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"hidden"</span>&gt;</span>内容 B<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"hidden"</span>&gt;</span>内容 C<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"hidden"</span>&gt;</span>内容 D<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var tabs2 = new Tabs({
+    element: '#tab-demo-2',
+    triggers: '#tab-demo-2 .ui-switchable-nav li',
+    panels: '#tab-demo-2 .ui-switchable-content div',
+    activeIndex: 2
+});
+
+setTimeout(function() {
+    tabs2.set("activeIndex", 0);
+}, 3000);</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> tabs2 = <span class="keyword">new</span> Tabs({
+    element: <span class="string">'#tab-demo-2'</span>,
+    triggers: <span class="string">'#tab-demo-2 .ui-switchable-nav li'</span>,
+    panels: <span class="string">'#tab-demo-2 .ui-switchable-content div'</span>,
+    activeIndex: <span class="number">2</span>
+});
+
+setTimeout(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    tabs2.set(<span class="string">"activeIndex"</span>, <span class="number">0</span>);
+}, <span class="number">3000</span>);</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>
