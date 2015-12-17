@@ -1,0 +1,157 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>Dialog - 基础调用</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="./">dialog</a>
+          <a href="../switchable/">switchable</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">Dialog - 基础调用</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link href="../dist/asset/alice/dialog.css" rel="stylesheet"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+<p><a href="./twoDialog.html">two-dialog</a>
+<a href="./directShow.html">direct-show</a>
+<a href="./custom.html">custom</a>
+<a href="./confirmbox.html">confirmbox</a>
+<a href="./ajax.html">ajax</a></p>
+<style>
+.fn-hide {display:none;}
+</style>
+
+<hr>
+<h3 id="1-基本调用，内容传入字符串">1. 基本调用，内容传入字符串</h3><button id="example1">内容传入字符串</button>
+
+<script>var Dialog = Hui.Dialog;
+new Dialog({
+    trigger: '#example1',
+    height: '100px',
+    content: '传入了字符串'
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Dialog = Hui.Dialog;
+<span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example1'</span>,
+    height: <span class="string">'100px'</span>,
+    content: <span class="string">'传入了字符串'</span>
+});</code></pre></div><select></select>
+<select></select>
+<select></select>
+<select></select>
+
+<h3 id="2-内容可传入-dom-对象">2. 内容可传入 DOM 对象</h3><button id="example2">内容传入DOM 对象</button>
+
+<div class="fn-hide"><div id="example2-dom" style="padding:50px">传入了DOM，<button type="button" data-role="close">关闭</button></div></div>
+
+
+<script>new Dialog({
+    trigger: '#example2',
+    content: $('#example2-dom')
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example2'</span>,
+    content: $(<span class="string">'#example2-dom'</span>)
+});</code></pre></div><h3 id="3-内容可传入-html-标签">3. 内容可传入 html 标签</h3><button id="example3">传入了 html 标签</button>
+
+<script>new Dialog({
+    trigger: '#example3',
+    content: '<div style="padding:20px;">传入了 html 标签</div>'
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example3'</span>,
+    content: <span class="string">'&lt;div style="padding:20px;"&gt;传入了 html 标签&lt;/div&gt;'</span>
+});</code></pre></div><h3 id="4-内容可传入-url，自动判断是否为-url">4. 内容可传入 url，自动判断是否为 url</h3><button id="example4">内嵌 iframe</button>
+
+<script>new Dialog({
+    trigger: '#example4',
+    content: './iframe.html'
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example4'</span>,
+    content: <span class="string">'./iframe.html'</span>
+});</code></pre></div><p>在 iframe 页面可以这样绑定关闭按钮</p>
+<div class="highlight"><pre><code class="javascript">document.getElementById(<span class="string">'close'</span>).onclick = <span class="function"><span class="keyword">function</span><span class="params">()</span>{</span>
+    window.frameElement.trigger(<span class="string">'close'</span>);
+};</code></pre></div><h3 id="5-iframe-的-url-可以根据-trigger-变化">5. iframe 的 url 可以根据 trigger 变化</h3><div id="example5" class="cell">
+    <button data-src="http://baidu.com">百度</button>
+    <button data-src="http://douban.com">豆瓣</button>
+    <button data-src="https://www.alipay.com">支付宝</button>
+</div>
+
+<script>new Dialog({
+    trigger: '#example5 button',
+    height: '400px'
+}).before('show',function() {
+     this.set('content', this.activeTrigger.attr('data-src'));
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example5 button'</span>,
+    height: <span class="string">'400px'</span>
+}).before(<span class="string">'show'</span>,<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+     <span class="keyword">this</span>.set(<span class="string">'content'</span>, <span class="keyword">this</span>.activeTrigger.attr(<span class="string">'data-src'</span>));
+});</code></pre></div><h3 id="6-当然除了-iframe，同样可以动态修改-content">6. 当然除了 iframe，同样可以动态修改 content</h3><div id="example6" class="cell">
+    <button data-id="10015">图片1</button>
+    <button data-id="10016">图片2</button>
+    <button data-id="10053">图片3</button>
+    <button data-id="10075">图片4</button>
+</div>
+
+<script>new Dialog({
+    trigger: '#example6 button',
+    height: '160px',
+    width: '160px'
+}).before('show',function() {
+    var img = '<img src="https://i.alipayobjects.com/combo.jpg?d=apps/58&t='+ this.activeTrigger.attr('data-id') + '" />';
+    this.set('content', img);
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example6 button'</span>,
+    height: <span class="string">'160px'</span>,
+    width: <span class="string">'160px'</span>
+}).before(<span class="string">'show'</span>,<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> img = <span class="string">'&lt;img src="https://i.alipayobjects.com/combo.jpg?d=apps/58&amp;t='</span>+ <span class="keyword">this</span>.activeTrigger.attr(<span class="string">'data-id'</span>) + <span class="string">'" /&gt;'</span>;
+    <span class="keyword">this</span>.set(<span class="string">'content'</span>, img);
+});</code></pre></div><h3 id="7-能够自动管理内嵌-iframe-的高度。">7. 能够自动管理内嵌 iframe 的高度。</h3><button id="example7">打开一个高度变化的iframe</button>
+
+<script>new Dialog({
+    trigger: '#example7',
+    content: './heightChange.html'
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example7'</span>,
+    content: <span class="string">'./heightChange.html'</span>
+});</code></pre></div><h3 id="8-初始化高度-initialheight">8. 初始化高度 initialHeight</h3><button id="example8">打开初始高度 150px 的对话框</button>
+
+<script>var example = new Dialog({
+    trigger: '#example8',
+    content: './iframe.html',
+    initialHeight: 150
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> example = <span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example8'</span>,
+    content: <span class="string">'./iframe.html'</span>,
+    initialHeight: <span class="number">150</span>
+});</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

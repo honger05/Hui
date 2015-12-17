@@ -1,0 +1,197 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>ConfirmBox - 标准模态对话框</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="./">dialog</a>
+          <a href="../switchable/">switchable</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">ConfirmBox - 标准模态对话框</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link href="../dist/asset/alice/dialog.css" rel="stylesheet"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<h2 id="带有默认样式的对话框">带有默认样式的对话框</h2><input type="button" id="trigger1" value="默认样式对话框" />
+
+<script>var Dialog = Hui.Dialog;
+var ConfirmBox = Dialog.ConfirmBox;
+var cb = new ConfirmBox({
+    trigger: '#trigger1',
+    title: '我真是标题啊',
+    message: '我是内容 我是内容',
+    onConfirm: function() {
+        var that = this;
+        this.set('title', '三秒后关闭对话框');
+        this.set('message', '不要啊！！');
+        setTimeout(function() {
+            that.hide();
+        }, 3000);
+    }
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Dialog = Hui.Dialog;
+<span class="keyword">var</span> ConfirmBox = Dialog.ConfirmBox;
+<span class="keyword">var</span> cb = <span class="keyword">new</span> ConfirmBox({
+    trigger: <span class="string">'#trigger1'</span>,
+    title: <span class="string">'我真是标题啊'</span>,
+    message: <span class="string">'我是内容 我是内容'</span>,
+    onConfirm: <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        <span class="keyword">var</span> that = <span class="keyword">this</span>;
+        <span class="keyword">this</span>.set(<span class="string">'title'</span>, <span class="string">'三秒后关闭对话框'</span>);
+        <span class="keyword">this</span>.set(<span class="string">'message'</span>, <span class="string">'不要啊！！'</span>);
+        setTimeout(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+            that.hide();
+        }, <span class="number">3000</span>);
+    }
+});</code></pre></div><h2 id="confirmbox-自定义按钮">ConfirmBox: 自定义按钮</h2><input type="button" id="trigger2" value="自定义按钮对话框" />
+
+<script>var cb = new ConfirmBox({
+    trigger: '#trigger2',
+    title: '我真是标题啊',
+    message: '我是内容 我是内容',
+    confirmTpl: '<button>确定</button>',
+    cancelTpl: '<button>取消</button>'
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> cb = <span class="keyword">new</span> ConfirmBox({
+    trigger: <span class="string">'#trigger2'</span>,
+    title: <span class="string">'我真是标题啊'</span>,
+    message: <span class="string">'我是内容 我是内容'</span>,
+    confirmTpl: <span class="string">'&lt;button&gt;确定&lt;/button&gt;'</span>,
+    cancelTpl: <span class="string">'&lt;button&gt;取消&lt;/button&gt;'</span>
+});</code></pre></div><h2 id="confirmbox-的静态方法-常用">ConfirmBox 的静态方法 <code>常用</code></h2><p><input type="button" id="trigger12" value="ConfirmBox.alert()" /></p>
+<p><input type="button" id="trigger13" value="ConfirmBox.confirm()" /></p>
+<p><input type="button" id="trigger13-1" value="ConfirmBox.confirm() with onCancel" /></p>
+<input type="button" id="trigger14" value="ConfirmBox.show()" />
+
+<script>$('#trigger12').click(function() {
+    ConfirmBox.alert('静态方法ConfirmBox.alert');
+});
+
+$('#trigger13').click(function() {
+    ConfirmBox.confirm('静态方法ConfirmBox.confirm', '自定义标题', function() {
+        alert('点击了确定按钮');
+    });
+});
+
+$('#trigger13-1').click(function() {
+    ConfirmBox.confirm('静态方法ConfirmBox.confirm with onCancel', '自定义标题', function() {
+        alert('点击了确定按钮');
+    }, function() {
+        alert('点击了取消按钮');
+    });
+});
+
+$('#trigger14').click(function() {
+    ConfirmBox.show('只是显示一些信息，右上角关闭');
+});</script><div class="highlight"><pre><code class="javascript">$(<span class="string">'#trigger12'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    ConfirmBox.alert(<span class="string">'静态方法ConfirmBox.alert'</span>);
+});
+
+$(<span class="string">'#trigger13'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    ConfirmBox.confirm(<span class="string">'静态方法ConfirmBox.confirm'</span>, <span class="string">'自定义标题'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        alert(<span class="string">'点击了确定按钮'</span>);
+    });
+});
+
+$(<span class="string">'#trigger13-1'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    ConfirmBox.confirm(<span class="string">'静态方法ConfirmBox.confirm with onCancel'</span>, <span class="string">'自定义标题'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        alert(<span class="string">'点击了确定按钮'</span>);
+    }, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        alert(<span class="string">'点击了取消按钮'</span>);
+    });
+});
+
+$(<span class="string">'#trigger14'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    ConfirmBox.show(<span class="string">'只是显示一些信息，右上角关闭'</span>);
+});</code></pre></div><h2 id="confirmbox-的静态方法自定义参数">ConfirmBox 的静态方法自定义参数</h2><p><input type="button" id="trigger1_1" value="ConfirmBox.alert() 宽度300" /></p>
+<p><input type="button" id="trigger1_2" value="ConfirmBox.confirm() 有关闭的X" /></p>
+<input type="button" id="trigger1_3" value="ConfirmBox.show() 没有mask" />
+
+<script>$('#trigger1_1').click(function() {
+    ConfirmBox.alert('静态方法ConfirmBox.alert', function() {
+        alert('点击了确定按钮');
+    }, {
+        beforeHide: function() {
+            alert('点击了取消按钮');
+        },
+        width: 300
+    });
+});
+
+$('#trigger1_2').click(function() {
+    ConfirmBox.confirm('静态方法ConfirmBox.confirm', '自定义标题', function() {
+        alert('点击了确定按钮');
+    }, {
+        beforeHide: function() {
+            alert('点击了取消按钮');
+        },
+        title: '改过的自定义标题',
+        closeTpl: '×'
+    });
+});
+
+$('#trigger1_3').click(function() {
+    ConfirmBox.show('静态方法ConfirmBox.show', function() {
+        alert('点击了关闭按钮');
+    }, {
+        hasMask: false
+    });
+});</script><div class="highlight"><pre><code class="javascript">$(<span class="string">'#trigger1_1'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    ConfirmBox.alert(<span class="string">'静态方法ConfirmBox.alert'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        alert(<span class="string">'点击了确定按钮'</span>);
+    }, {
+        beforeHide: <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+            alert(<span class="string">'点击了取消按钮'</span>);
+        },
+        width: <span class="number">300</span>
+    });
+});
+
+$(<span class="string">'#trigger1_2'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    ConfirmBox.confirm(<span class="string">'静态方法ConfirmBox.confirm'</span>, <span class="string">'自定义标题'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        alert(<span class="string">'点击了确定按钮'</span>);
+    }, {
+        beforeHide: <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+            alert(<span class="string">'点击了取消按钮'</span>);
+        },
+        title: <span class="string">'改过的自定义标题'</span>,
+        closeTpl: <span class="string">'×'</span>
+    });
+});
+
+$(<span class="string">'#trigger1_3'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    ConfirmBox.show(<span class="string">'静态方法ConfirmBox.show'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        alert(<span class="string">'点击了关闭按钮'</span>);
+    }, {
+        hasMask: <span class="literal">false</span>
+    });
+});</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

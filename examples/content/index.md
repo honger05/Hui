@@ -8,5 +8,6 @@ Learning and Practice on Arale
 
 glance
 
-[Switchable](./switchable/index.html)
 [Dialog](./Dialog/index.html)
+[Switchable](./switchable/index.html)
+

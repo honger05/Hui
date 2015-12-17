@@ -5,7 +5,8 @@
     "sitename": "Hui",
     "permalink": "{{directory}}/{{filename}}.html",
     "navigation": [
-	    {"link": "switchable/index.html", "title": "switchable"}
+	    {"link": "dialog/index.html", "title": "dialog"},
+        {"link": "switchable/index.html", "title": "switchable"}
 	  ],
 	  "footer": "Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.",
     "writers": [
