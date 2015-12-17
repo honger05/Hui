@@ -279,7 +279,7 @@ $("#slide-demo-3 #next").click(function(e) {
     overflow: hidden;
 }
 #slide-demo-4 .ui-switchable-content .ui-switchable-panel img {
-    margin-left: -660px;
+    margin-left: 0px;
 }
 #slide-demo-4 .ui-switchable-nav {
     position: absolute;

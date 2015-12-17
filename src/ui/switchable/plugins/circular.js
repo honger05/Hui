@@ -5,7 +5,7 @@
 
   var SCROLLX = 'scrollx';
   var SCROLLY = 'scrolly';
-  var Effects = Plugins.Effects;
+  var Effects = Plugins.Effects.Effects;
 
 
   // 无缝循环滚动插件

@@ -2482,7 +2482,7 @@ var Hui = Hui || {};
 
   var SCROLLX = 'scrollx';
   var SCROLLY = 'scrolly';
-  var Effects = Plugins.Effects;
+  var Effects = Plugins.Effects.Effects;
 
 
   // 无缝循环滚动插件
@@ -2598,6 +2598,7 @@ var Hui = Hui || {};
   }
 
 })(jQuery, (Hui.Plugins = Hui.Plugins || {}))
+
 // Switchable
 // -----------
 // 可切换组件，核心特征是：有一组可切换的面板（Panel），可通过触点（Trigger）来触发。
