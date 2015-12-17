@@ -1,7 +1,7 @@
 {
     "source": "content",
     "output": "_site",
-    "theme": "_themes/one",
+    "theme": "_themes/ones",
     "sitename": "Hui",
     "permalink": "{{directory}}/{{filename}}.html",
     "navigation": [

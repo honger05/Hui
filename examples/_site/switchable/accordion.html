@@ -1,0 +1,280 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>Accordion - 手风琴</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="./">switchable</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">Accordion - 手风琴</h1>
+  <div class="entry-content" itemprop="articleBody"><script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<h2 id="multiple-false-时">multiple: false 时</h2><style>
+.accordion-demo {
+    margin: 20px 0;
+    padding: 0;
+}
+.hidden {
+    display: none;
+}
+</style>
+
+<style type="text/css">#accordion-demo-1 {
+    width: 300px;
+    border: 1px solid #ccc;
+}
+
+#accordion-demo-1 .ui-switchable-trigger {
+    height: 30px;
+    line-height: 34px;
+    padding: 0 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    background: #f3f3f3;
+    overflow: hidden;
+}
+
+#accordion-demo-1 .ui-switchable-trigger h3 {
+    margin: 0;
+    padding-left: 20px;
+    background: transparent url(assets/accordion-sprite.png) no-repeat 0 10px;
+}
+
+#accordion-demo-1 .ui-switchable-panel {
+    height: 150px;
+    padding: 3px 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+#accordion-demo-1 .ui-switchable-active h3 {
+    background-position: 0 -14px;
+}
+
+#accordion-demo-1 .last-trigger {
+    border-bottom-width: 0
+}
+
+#accordion-demo-1 .ui-switchable-active {
+    border-bottom-width: 1px
+}
+
+#accordion-demo-1 .last-panel {
+    border-bottom: none
+}</style><div class="highlight"><pre><code class="css"><span class="id">#accordion-demo-1</span> <span class="rules">{
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">300</span>px</span></span>;
+    <span class="rule"><span class="attribute">border</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#ccc</span></span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-1</span> <span class="class">.ui-switchable-trigger</span> <span class="rules">{
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">30</span>px</span></span>;
+    <span class="rule"><span class="attribute">line-height</span>:<span class="value"> <span class="number">34</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">0</span> <span class="number">10</span>px</span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> pointer</span></span>;
+    <span class="rule"><span class="attribute">border-bottom</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#ddd</span></span></span>;
+    <span class="rule"><span class="attribute">background</span>:<span class="value"> <span class="hexcolor">#f3f3f3</span></span></span>;
+    <span class="rule"><span class="attribute">overflow</span>:<span class="value"> hidden</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-1</span> <span class="class">.ui-switchable-trigger</span> <span class="tag">h3</span> <span class="rules">{
+    <span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">padding-left</span>:<span class="value"> <span class="number">20</span>px</span></span>;
+    <span class="rule"><span class="attribute">background</span>:<span class="value"> transparent <span class="function">url(assets/accordion-sprite.png)</span> no-repeat <span class="number">0</span> <span class="number">10</span>px</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-1</span> <span class="class">.ui-switchable-panel</span> <span class="rules">{
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">150</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">3</span>px <span class="number">10</span>px</span></span>;
+    <span class="rule"><span class="attribute">border-bottom</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#ddd</span></span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-1</span> <span class="class">.ui-switchable-active</span> <span class="tag">h3</span> <span class="rules">{
+    <span class="rule"><span class="attribute">background-position</span>:<span class="value"> <span class="number">0</span> -<span class="number">14</span>px</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-1</span> <span class="class">.last-trigger</span> <span class="rules">{
+    <span class="rule"><span class="attribute">border-bottom-width</span>:<span class="value"> <span class="number">0</span>
+</span></span></span>}
+
+<span class="id">#accordion-demo-1</span> <span class="class">.ui-switchable-active</span> <span class="rules">{
+    <span class="rule"><span class="attribute">border-bottom-width</span>:<span class="value"> <span class="number">1</span>px
+</span></span></span>}
+
+<span class="id">#accordion-demo-1</span> <span class="class">.last-panel</span> <span class="rules">{
+    <span class="rule"><span class="attribute">border-bottom</span>:<span class="value"> none
+</span></span></span>}</code></pre></div><div class="nico-insert-code"><div id="accordion-demo-1" class="accordion-demo">
+    <div class="ui-switchable-trigger" data-role="trigger"><h3>标题A</h3></div>
+    <div class="ui-switchable-panel hidden" data-role="panel">
+        1、支持鼠标滑过和点击触点两种方式<br/>
+        2、支持同时展开多个面板
+    </div>
+    <div class="ui-switchable-trigger" data-role="trigger"><h3>标题B</h3></div>
+    <div class="ui-switchable-panel hidden" data-role="panel">内容B<br/>内容B<br/>内容B</div>
+    <div class="ui-switchable-trigger" data-role="trigger"><h3>标题C</h3></div>
+    <div class="ui-switchable-panel hidden" data-role="panel">内容C<br/>内容C<br/>内容C<br/>内容C<br/>内容C</div>
+    <div class="ui-switchable-trigger last-trigger" data-role="trigger"><h3>标题D</h3></div>
+    <div class="ui-switchable-panel last-panel hidden" data-role="panel">内容D<br/>内容D<br/>内容D</div>
+</div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"accordion-demo-1"</span> <span class="attribute">class</span>=<span class="value">"accordion-demo"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-trigger"</span> <span class="attribute">data-role</span>=<span class="value">"trigger"</span>&gt;</span><span class="tag">&lt;<span class="title">h3</span>&gt;</span>标题A<span class="tag">&lt;/<span class="title">h3</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel hidden"</span> <span class="attribute">data-role</span>=<span class="value">"panel"</span>&gt;</span>
+        1、支持鼠标滑过和点击触点两种方式<span class="tag">&lt;<span class="title">br</span>/&gt;</span>
+        2、支持同时展开多个面板
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-trigger"</span> <span class="attribute">data-role</span>=<span class="value">"trigger"</span>&gt;</span><span class="tag">&lt;<span class="title">h3</span>&gt;</span>标题B<span class="tag">&lt;/<span class="title">h3</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel hidden"</span> <span class="attribute">data-role</span>=<span class="value">"panel"</span>&gt;</span>内容B<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容B<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容B<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-trigger"</span> <span class="attribute">data-role</span>=<span class="value">"trigger"</span>&gt;</span><span class="tag">&lt;<span class="title">h3</span>&gt;</span>标题C<span class="tag">&lt;/<span class="title">h3</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel hidden"</span> <span class="attribute">data-role</span>=<span class="value">"panel"</span>&gt;</span>内容C<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容C<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容C<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容C<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容C<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-trigger last-trigger"</span> <span class="attribute">data-role</span>=<span class="value">"trigger"</span>&gt;</span><span class="tag">&lt;<span class="title">h3</span>&gt;</span>标题D<span class="tag">&lt;/<span class="title">h3</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel last-panel hidden"</span> <span class="attribute">data-role</span>=<span class="value">"panel"</span>&gt;</span>内容D<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容D<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容D<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var Accordion = Hui.Switchable.Accordion;
+new Accordion({
+    element: '#accordion-demo-1'
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Accordion = Hui.Switchable.Accordion;
+<span class="keyword">new</span> Accordion({
+    element: <span class="string">'#accordion-demo-1'</span>
+}).render();</code></pre></div><h2 id="multiple-true-时">multiple: true 时</h2><style type="text/css">#accordion-demo-2 {
+    width: 300px;
+    border: 1px solid #ccc;
+}
+
+#accordion-demo-2 .ui-switchable-trigger {
+    height: 30px;
+    line-height: 34px;
+    padding: 0 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    background: #f3f3f3;
+    overflow: hidden;
+}
+
+#accordion-demo-2 .ui-switchable-trigger h3 {
+    margin: 0;
+    padding-left: 20px;
+    background: transparent url(assets/accordion-sprite.png) no-repeat 0 10px;
+}
+
+#accordion-demo-2 .ui-switchable-panel {
+    height: 150px;
+    padding: 3px 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+#accordion-demo-2 .ui-switchable-active h3 {
+    background-position: 0 -14px;
+}
+
+#accordion-demo-2 .last-trigger {
+    border-bottom-width: 0
+}
+
+#accordion-demo-2 .ui-switchable-active {
+    border-bottom-width: 1px
+}
+
+#accordion-demo-2 .last-panel {
+    border-bottom: none
+}</style><div class="highlight"><pre><code class="css"><span class="id">#accordion-demo-2</span> <span class="rules">{
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">300</span>px</span></span>;
+    <span class="rule"><span class="attribute">border</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#ccc</span></span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-2</span> <span class="class">.ui-switchable-trigger</span> <span class="rules">{
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">30</span>px</span></span>;
+    <span class="rule"><span class="attribute">line-height</span>:<span class="value"> <span class="number">34</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">0</span> <span class="number">10</span>px</span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> pointer</span></span>;
+    <span class="rule"><span class="attribute">border-bottom</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#ddd</span></span></span>;
+    <span class="rule"><span class="attribute">background</span>:<span class="value"> <span class="hexcolor">#f3f3f3</span></span></span>;
+    <span class="rule"><span class="attribute">overflow</span>:<span class="value"> hidden</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-2</span> <span class="class">.ui-switchable-trigger</span> <span class="tag">h3</span> <span class="rules">{
+    <span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">padding-left</span>:<span class="value"> <span class="number">20</span>px</span></span>;
+    <span class="rule"><span class="attribute">background</span>:<span class="value"> transparent <span class="function">url(assets/accordion-sprite.png)</span> no-repeat <span class="number">0</span> <span class="number">10</span>px</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-2</span> <span class="class">.ui-switchable-panel</span> <span class="rules">{
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">150</span>px</span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">3</span>px <span class="number">10</span>px</span></span>;
+    <span class="rule"><span class="attribute">border-bottom</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#ddd</span></span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-2</span> <span class="class">.ui-switchable-active</span> <span class="tag">h3</span> <span class="rules">{
+    <span class="rule"><span class="attribute">background-position</span>:<span class="value"> <span class="number">0</span> -<span class="number">14</span>px</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#accordion-demo-2</span> <span class="class">.last-trigger</span> <span class="rules">{
+    <span class="rule"><span class="attribute">border-bottom-width</span>:<span class="value"> <span class="number">0</span>
+</span></span></span>}
+
+<span class="id">#accordion-demo-2</span> <span class="class">.ui-switchable-active</span> <span class="rules">{
+    <span class="rule"><span class="attribute">border-bottom-width</span>:<span class="value"> <span class="number">1</span>px
+</span></span></span>}
+
+<span class="id">#accordion-demo-2</span> <span class="class">.last-panel</span> <span class="rules">{
+    <span class="rule"><span class="attribute">border-bottom</span>:<span class="value"> none
+</span></span></span>}</code></pre></div><div class="nico-insert-code"><div id="accordion-demo-2" class="accordion-demo">
+    <div class="ui-switchable-trigger" data-role="trigger"><h3>标题A</h3></div>
+    <div class="ui-switchable-panel hidden" data-role="panel">
+        1、支持鼠标滑过和点击触点两种方式<br/>
+        2、支持同时展开多个面板
+    </div>
+    <div class="ui-switchable-trigger" data-role="trigger"><h3>标题B</h3></div>
+    <div class="ui-switchable-panel hidden" data-role="panel">内容B<br/>内容B<br/>内容B</div>
+    <div class="ui-switchable-trigger" data-role="trigger"><h3>标题C</h3></div>
+    <div class="ui-switchable-panel hidden" data-role="panel">内容C<br/>内容C<br/>内容C<br/>内容C<br/>内容C</div>
+    <div class="ui-switchable-trigger last-trigger" data-role="trigger"><h3>标题D</h3></div>
+    <div class="ui-switchable-panel last-panel hidden" data-role="panel">内容D<br/>内容D<br/>内容D</div>
+</div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"accordion-demo-2"</span> <span class="attribute">class</span>=<span class="value">"accordion-demo"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-trigger"</span> <span class="attribute">data-role</span>=<span class="value">"trigger"</span>&gt;</span><span class="tag">&lt;<span class="title">h3</span>&gt;</span>标题A<span class="tag">&lt;/<span class="title">h3</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel hidden"</span> <span class="attribute">data-role</span>=<span class="value">"panel"</span>&gt;</span>
+        1、支持鼠标滑过和点击触点两种方式<span class="tag">&lt;<span class="title">br</span>/&gt;</span>
+        2、支持同时展开多个面板
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-trigger"</span> <span class="attribute">data-role</span>=<span class="value">"trigger"</span>&gt;</span><span class="tag">&lt;<span class="title">h3</span>&gt;</span>标题B<span class="tag">&lt;/<span class="title">h3</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel hidden"</span> <span class="attribute">data-role</span>=<span class="value">"panel"</span>&gt;</span>内容B<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容B<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容B<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-trigger"</span> <span class="attribute">data-role</span>=<span class="value">"trigger"</span>&gt;</span><span class="tag">&lt;<span class="title">h3</span>&gt;</span>标题C<span class="tag">&lt;/<span class="title">h3</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel hidden"</span> <span class="attribute">data-role</span>=<span class="value">"panel"</span>&gt;</span>内容C<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容C<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容C<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容C<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容C<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-trigger last-trigger"</span> <span class="attribute">data-role</span>=<span class="value">"trigger"</span>&gt;</span><span class="tag">&lt;<span class="title">h3</span>&gt;</span>标题D<span class="tag">&lt;/<span class="title">h3</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel last-panel hidden"</span> <span class="attribute">data-role</span>=<span class="value">"panel"</span>&gt;</span>内容D<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容D<span class="tag">&lt;<span class="title">br</span>/&gt;</span>内容D<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>new Accordion({
+    element: '#accordion-demo-2',
+    multiple: true,
+    activeIndex: -99
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Accordion({
+    element: <span class="string">'#accordion-demo-2'</span>,
+    multiple: <span class="literal">true</span>,
+    activeIndex: -<span class="number">99</span>
+}).render();</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

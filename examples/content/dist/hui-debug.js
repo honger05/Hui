@@ -2185,9 +2185,6 @@ var Hui = Hui || {};
 
 })(jQuery)
 
-// effects 切换效果插件
-// ============================================
-
 !(function($, Plugins) {
   'use strict'
 
@@ -2361,14 +2358,10 @@ var Hui = Hui || {};
 
   Effects[SCROLLY] = Effects.scroll;
   Effects[SCROLLX] = Effects.scroll;
-
+  
   Plugins.Effects.Effects = Effects;
 
 })(jQuery, (Hui.Plugins = Hui.Plugins || {}))
-
-
-// autoplay 自动播放插件
-// ============================================
 
 !(function($, Plugins) {
   'use strict'
@@ -2484,15 +2477,12 @@ var Hui = Hui || {};
 })(jQuery, (Hui.Plugins = Hui.Plugins || {}))
 
 
-// circular 无缝循环滚动插件
-// ============================================
-
 !(function($, Plugins) {
   'use strict'
 
   var SCROLLX = 'scrollx';
   var SCROLLY = 'scrolly';
-  var Effects = Plugins.Effects.Effects;
+  var Effects = Plugins.Effects;
 
 
   // 无缝循环滚动插件
@@ -2608,7 +2598,6 @@ var Hui = Hui || {};
   }
 
 })(jQuery, (Hui.Plugins = Hui.Plugins || {}))
-
 // Switchable
 // -----------
 // 可切换组件，核心特征是：有一组可切换的面板（Panel），可通过触点（Trigger）来触发。

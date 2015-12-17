@@ -1062,7 +1062,7 @@ var Hui = Hui || {};
     var elements = []
 
     root.find('[data-widget]').each(function(i, element) {
-      if (!exports.isDataApiOff(element)) {
+      if (!Hui.AutoRender.isDataApiOff(element)) {
         modules.push(element.getAttribute('data-widget').toLowerCase())
         elements.push(element)
       }
@@ -1115,6 +1115,7 @@ var Hui = Hui || {};
   }
 
 })(jQuery);
+
 // DAParser
 // --------
 // data api 解析器，提供对单个 element 的解析，可用来初始化页面中的所有 Widget 组件。

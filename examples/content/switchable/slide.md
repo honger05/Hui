@@ -25,7 +25,7 @@
 #slide-demo-1 {
     position: relative;
     width: 740px;
-    height: 200px;
+    height: 116px;
     overflow: hidden;
 }
 #slide-demo-1 .ui-switchable-content {
@@ -36,7 +36,7 @@
 #slide-demo-1 .ui-switchable-content .ui-switchable-panel {
     position: relative;
     width: 740px;
-    height: 200px;
+    height: 116px;
     overflow: hidden;
 }
 #slide-demo-1 .ui-switchable-content .ui-switchable-panel img {
@@ -100,7 +100,7 @@ new Slide({
 #slide-demo-2 {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 116px;
     overflow: hidden;
 }
 #slide-demo-2 .ui-switchable-content {
@@ -111,11 +111,11 @@ new Slide({
 #slide-demo-2 .ui-switchable-content .ui-switchable-panel {
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 116px;
     overflow: hidden;
 }
 #slide-demo-2 .ui-switchable-content .ui-switchable-panel img {
-    margin-left: -660px;
+    margin-left: 0px;
 }
 #slide-demo-2 .ui-switchable-nav {
     position: absolute;
@@ -239,7 +239,7 @@ new Slide({
 ````
 
 ````js
-var slide = new Slide({
+var slide1 = new Slide({
     element: '#slide-demo-3',
     effect: 'scrollx',
     hasTriggers: false
@@ -248,12 +248,12 @@ var slide = new Slide({
 // 自定义 prev/next
 $("#slide-demo-3 #prev").click(function(e) {
     e.preventDefault();
-    slide.prev();
+    slide1.prev();
 });
 
 $("#slide-demo-3 #next").click(function(e) {
     e.preventDefault();
-    slide.next();
+    slide1.next();
 });
 ````
 
@@ -344,7 +344,7 @@ $("#slide-demo-3 #next").click(function(e) {
 ````
 
 ````js
-var slide = new Slide({
+var slide2 = new Slide({
     element: '#slide-demo-4',
     effect: 'fade',
     activeIndex: 1

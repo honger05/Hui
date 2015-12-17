@@ -12,6 +12,8 @@
 
 [Tabs](./tabs.html)
 [Slide](./slide.html)
+[Carousel](./carousel.html)
+[Accordion](./accordion.html)
 
 ## 指定 Triggers/Panels
 

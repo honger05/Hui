@@ -1,0 +1,346 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>Carousel</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="./">switchable</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">Carousel</h1>
+  <div class="entry-content" itemprop="articleBody"><script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<h2 id="设置-step-viewsize-的情况">设置 step/viewSize 的情况</h2><p>step 为步长, 即每切换一次, 移动多少个 panels. 而 viewSize 为滑动窗口的大小, 一般为 panels 的整数倍.
+另外, viewSize 默认是自动计算, 但有时设置不准确, 特别是 panels 和容器设置了乱七八糟的 padding 时. 所以这是需要手工指定 viewSize.</p>
+<style>
+.carousel-demo {
+    margin: 40px 0 20px;
+    padding: 0;
+}
+.hidden {
+    display: none;
+}
+</style>
+
+<style type="text/css">#carousel-demo-1 {
+    position: relative;
+    width: 664px;
+}
+#carousel-demo-1 .ui-switchable-prev-btn, #carousel-demo-1 .ui-switchable-next-btn {
+    position: absolute;
+    top: -30px;
+    color: #666;
+    cursor: pointer;
+}
+#carousel-demo-1 .ui-switchable-prev-btn {
+    left: 10px;
+}
+#carousel-demo-1 .ui-switchable-next-btn {
+    right: 10px;
+}
+#carousel-demo-1 .ui-switchable-disabled-btn {
+    color: #ddd;
+    cursor: default;
+}
+
+#carousel-demo-1 .scroller {
+    width: 664px;
+    height: 120px;
+    border: 1px solid #ccc;
+    background-color: #F9F9F9;
+    overflow: hidden;
+}
+#carousel-demo-1 .scroller .ui-switchable-content {
+    padding: 20px 0;
+    height: 80px;
+}
+#carousel-demo-1 .scroller .ui-switchable-content img {
+    float: left;
+    display: block;
+    width: 190px;
+    height: 80px;
+    margin: 0 15px;
+    border: 1px solid #ccc;
+}</style><div class="highlight"><pre><code class="css"><span class="id">#carousel-demo-1</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">664</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-1</span> <span class="class">.ui-switchable-prev-btn</span>, <span class="id">#carousel-demo-1</span> <span class="class">.ui-switchable-next-btn</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> absolute</span></span>;
+    <span class="rule"><span class="attribute">top</span>:<span class="value"> -<span class="number">30</span>px</span></span>;
+    <span class="rule"><span class="attribute">color</span>:<span class="value"> <span class="hexcolor">#666</span></span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> pointer</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-1</span> <span class="class">.ui-switchable-prev-btn</span> <span class="rules">{
+    <span class="rule"><span class="attribute">left</span>:<span class="value"> <span class="number">10</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-1</span> <span class="class">.ui-switchable-next-btn</span> <span class="rules">{
+    <span class="rule"><span class="attribute">right</span>:<span class="value"> <span class="number">10</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-1</span> <span class="class">.ui-switchable-disabled-btn</span> <span class="rules">{
+    <span class="rule"><span class="attribute">color</span>:<span class="value"> <span class="hexcolor">#ddd</span></span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> default</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#carousel-demo-1</span> <span class="class">.scroller</span> <span class="rules">{
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">664</span>px</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">120</span>px</span></span>;
+    <span class="rule"><span class="attribute">border</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#ccc</span></span></span>;
+    <span class="rule"><span class="attribute">background-color</span>:<span class="value"> <span class="hexcolor">#F9F9F9</span></span></span>;
+    <span class="rule"><span class="attribute">overflow</span>:<span class="value"> hidden</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-1</span> <span class="class">.scroller</span> <span class="class">.ui-switchable-content</span> <span class="rules">{
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">20</span>px <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">80</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-1</span> <span class="class">.scroller</span> <span class="class">.ui-switchable-content</span> <span class="tag">img</span> <span class="rules">{
+    <span class="rule"><span class="attribute">float</span>:<span class="value"> left</span></span>;
+    <span class="rule"><span class="attribute">display</span>:<span class="value"> block</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">190</span>px</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">80</span>px</span></span>;
+    <span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">0</span> <span class="number">15</span>px</span></span>;
+    <span class="rule"><span class="attribute">border</span>:<span class="value"> <span class="number">1</span>px solid <span class="hexcolor">#ccc</span></span></span>;
+<span class="rule">}</span></span></code></pre></div><div class="nico-insert-code"><div id="carousel-demo-1" class="carousel-demo">
+    <span class="ui-switchable-prev-btn" data-role="prev">&lsaquo; 上一页</span>
+    <span class="ui-switchable-next-btn" data-role="next">下一页 &rsaquo;</span>
+    <div class="scroller">
+        <div class="ui-switchable-content" data-role="content">
+            <img src="" alt="1" class="ui-switchable-panel">
+            <img src="" alt="2" class="ui-switchable-panel">
+            <img src="" alt="3" class="ui-switchable-panel">
+            <img src="" alt="4" class="ui-switchable-panel">
+            <img src="" alt="5" class="ui-switchable-panel">
+        </div>
+    </div>
+</div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"carousel-demo-1"</span> <span class="attribute">class</span>=<span class="value">"carousel-demo"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-prev-btn"</span> <span class="attribute">data-role</span>=<span class="value">"prev"</span>&gt;</span>&amp;lsaquo; 上一页<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-next-btn"</span> <span class="attribute">data-role</span>=<span class="value">"next"</span>&gt;</span>下一页 &amp;rsaquo;<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"scroller"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-content"</span> <span class="attribute">data-role</span>=<span class="value">"content"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">""</span> <span class="attribute">alt</span>=<span class="value">"1"</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">""</span> <span class="attribute">alt</span>=<span class="value">"2"</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">""</span> <span class="attribute">alt</span>=<span class="value">"3"</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">""</span> <span class="attribute">alt</span>=<span class="value">"4"</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">""</span> <span class="attribute">alt</span>=<span class="value">"5"</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var Carousel = Hui.Switchable.Carousel;
+
+var panelLength = $('#carousel-demo-1 .ui-switchable-panel').length;
+new Carousel({
+    element: '#carousel-demo-1',
+    hasTriggers: false,
+    easing: 'easeOutStrong',
+    effect: 'scrollx',
+    step: panelLength/(panelLength - 2),
+    viewSize: [232],
+    circular: false,
+    autoplay: true
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Carousel = Hui.Switchable.Carousel;
+
+<span class="keyword">var</span> panelLength = $(<span class="string">'#carousel-demo-1 .ui-switchable-panel'</span>).length;
+<span class="keyword">new</span> Carousel({
+    element: <span class="string">'#carousel-demo-1'</span>,
+    hasTriggers: <span class="literal">false</span>,
+    easing: <span class="string">'easeOutStrong'</span>,
+    effect: <span class="string">'scrollx'</span>,
+    step: panelLength/(panelLength - <span class="number">2</span>),
+    viewSize: [<span class="number">232</span>],
+    circular: <span class="literal">false</span>,
+    autoplay: <span class="literal">true</span>
+}).render();</code></pre></div><h2 id="使用-carousel-实现的-slide">使用 Carousel 实现的 Slide</h2><style type="text/css">#carousel-demo-2 {
+    position: relative;
+    width: 740px;
+    height: 120px;
+}
+#carousel-demo-2 .ui-switchable-prev-btn, #carousel-demo-2 .ui-switchable-next-btn {
+    position: absolute;
+    top: -30px;
+    color: #666;
+    cursor: pointer;
+}
+#carousel-demo-2 .ui-switchable-prev-btn {
+    left: 10px;
+}
+#carousel-demo-2 .ui-switchable-next-btn {
+    right: 10px;
+}
+#carousel-demo-2 .ui-switchable-disabled-btn {
+    color: #ddd;
+    cursor: default;
+}
+
+#carousel-demo-2 .scroller {
+    width: 740px;
+    height: 200px;
+    overflow: hidden;
+}
+#carousel-demo-2 .scroller .ui-switchable-content {
+    padding: 0;
+    margin: 0;
+}
+#carousel-demo-2 .scroller .ui-switchable-content img {
+    float: left;
+    display: block;
+    width: 740px;
+    height: 120px;
+}
+#carousel-demo-2 .ui-switchable-nav {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    margin: 0;
+    padding: 0;
+    z-index: 99;
+    font-size: 12px;
+}
+#carousel-demo-2 .ui-switchable-nav .ui-switchable-trigger {
+    float: left;
+    width: 15px;
+    height: 15px;
+    line-height: 17px;
+    margin-left: 5px;
+    background-color: #FFF;
+    opacity: .5;
+    filter: alpha(opacity=50);
+    text-align: center;
+    color: black;
+    cursor: pointer;
+    list-style: none;
+}
+#carousel-demo-2 .ui-switchable-nav .ui-switchable-active {
+    color: #FFF;
+    background-color: #e96c3e;
+    opacity: 1;
+    filter: alpha(opacity=100);
+}</style><div class="highlight"><pre><code class="css"><span class="id">#carousel-demo-2</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> relative</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">740</span>px</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">120</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.ui-switchable-prev-btn</span>, <span class="id">#carousel-demo-2</span> <span class="class">.ui-switchable-next-btn</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> absolute</span></span>;
+    <span class="rule"><span class="attribute">top</span>:<span class="value"> -<span class="number">30</span>px</span></span>;
+    <span class="rule"><span class="attribute">color</span>:<span class="value"> <span class="hexcolor">#666</span></span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> pointer</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.ui-switchable-prev-btn</span> <span class="rules">{
+    <span class="rule"><span class="attribute">left</span>:<span class="value"> <span class="number">10</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.ui-switchable-next-btn</span> <span class="rules">{
+    <span class="rule"><span class="attribute">right</span>:<span class="value"> <span class="number">10</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.ui-switchable-disabled-btn</span> <span class="rules">{
+    <span class="rule"><span class="attribute">color</span>:<span class="value"> <span class="hexcolor">#ddd</span></span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> default</span></span>;
+<span class="rule">}</span></span>
+
+<span class="id">#carousel-demo-2</span> <span class="class">.scroller</span> <span class="rules">{
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">740</span>px</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">200</span>px</span></span>;
+    <span class="rule"><span class="attribute">overflow</span>:<span class="value"> hidden</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.scroller</span> <span class="class">.ui-switchable-content</span> <span class="rules">{
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">0</span></span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.scroller</span> <span class="class">.ui-switchable-content</span> <span class="tag">img</span> <span class="rules">{
+    <span class="rule"><span class="attribute">float</span>:<span class="value"> left</span></span>;
+    <span class="rule"><span class="attribute">display</span>:<span class="value"> block</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">740</span>px</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">120</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.ui-switchable-nav</span> <span class="rules">{
+    <span class="rule"><span class="attribute">position</span>:<span class="value"> absolute</span></span>;
+    <span class="rule"><span class="attribute">bottom</span>:<span class="value"> <span class="number">10</span>px</span></span>;
+    <span class="rule"><span class="attribute">right</span>:<span class="value"> <span class="number">10</span>px</span></span>;
+    <span class="rule"><span class="attribute">margin</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">padding</span>:<span class="value"> <span class="number">0</span></span></span>;
+    <span class="rule"><span class="attribute">z-index</span>:<span class="value"> <span class="number">99</span></span></span>;
+    <span class="rule"><span class="attribute">font-size</span>:<span class="value"> <span class="number">12</span>px</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.ui-switchable-nav</span> <span class="class">.ui-switchable-trigger</span> <span class="rules">{
+    <span class="rule"><span class="attribute">float</span>:<span class="value"> left</span></span>;
+    <span class="rule"><span class="attribute">width</span>:<span class="value"> <span class="number">15</span>px</span></span>;
+    <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">15</span>px</span></span>;
+    <span class="rule"><span class="attribute">line-height</span>:<span class="value"> <span class="number">17</span>px</span></span>;
+    <span class="rule"><span class="attribute">margin-left</span>:<span class="value"> <span class="number">5</span>px</span></span>;
+    <span class="rule"><span class="attribute">background-color</span>:<span class="value"> <span class="hexcolor">#FFF</span></span></span>;
+    <span class="rule"><span class="attribute">opacity</span>:<span class="value"> .<span class="number">5</span></span></span>;
+    <span class="rule"><span class="attribute">filter</span>:<span class="value"> <span class="function">alpha(opacity=<span class="number">50</span>)</span></span></span>;
+    <span class="rule"><span class="attribute">text-align</span>:<span class="value"> center</span></span>;
+    <span class="rule"><span class="attribute">color</span>:<span class="value"> black</span></span>;
+    <span class="rule"><span class="attribute">cursor</span>:<span class="value"> pointer</span></span>;
+    <span class="rule"><span class="attribute">list-style</span>:<span class="value"> none</span></span>;
+<span class="rule">}</span></span>
+<span class="id">#carousel-demo-2</span> <span class="class">.ui-switchable-nav</span> <span class="class">.ui-switchable-active</span> <span class="rules">{
+    <span class="rule"><span class="attribute">color</span>:<span class="value"> <span class="hexcolor">#FFF</span></span></span>;
+    <span class="rule"><span class="attribute">background-color</span>:<span class="value"> <span class="hexcolor">#e96c3e</span></span></span>;
+    <span class="rule"><span class="attribute">opacity</span>:<span class="value"> <span class="number">1</span></span></span>;
+    <span class="rule"><span class="attribute">filter</span>:<span class="value"> <span class="function">alpha(opacity=<span class="number">100</span>)</span></span></span>;
+<span class="rule">}</span></span></code></pre></div><div class="nico-insert-code"><div id="carousel-demo-2" class="carousel-demo">
+    <span class="ui-switchable-prev-btn" data-role="prev">&lsaquo; 上一页</span>
+    <span class="ui-switchable-next-btn" data-role="next">下一页 &rsaquo;</span>
+    <div class="scroller">
+        <div class="ui-switchable-content" data-role="content">
+            <img src="./assets/slide_1.jpg" alt="" class="ui-switchable-panel">
+            <img src="./assets/slide_2.jpg" alt="" class="ui-switchable-panel">
+            <img src="./assets/slide_2.jpg" alt="" class="ui-switchable-panel">
+            <img src="./assets/slide_2.jpg" alt="" class="ui-switchable-panel">
+            <img src="./assets/slide_3.jpg" alt="" class="ui-switchable-panel">
+        </div>
+    </div>
+</div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"carousel-demo-2"</span> <span class="attribute">class</span>=<span class="value">"carousel-demo"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-prev-btn"</span> <span class="attribute">data-role</span>=<span class="value">"prev"</span>&gt;</span>&amp;lsaquo; 上一页<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-next-btn"</span> <span class="attribute">data-role</span>=<span class="value">"next"</span>&gt;</span>下一页 &amp;rsaquo;<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"scroller"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-content"</span> <span class="attribute">data-role</span>=<span class="value">"content"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">"./assets/slide_1.jpg"</span> <span class="attribute">alt</span>=<span class="value">""</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">"./assets/slide_2.jpg"</span> <span class="attribute">alt</span>=<span class="value">""</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">"./assets/slide_2.jpg"</span> <span class="attribute">alt</span>=<span class="value">""</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">"./assets/slide_2.jpg"</span> <span class="attribute">alt</span>=<span class="value">""</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">img</span> <span class="attribute">src</span>=<span class="value">"./assets/slide_3.jpg"</span> <span class="attribute">alt</span>=<span class="value">""</span> <span class="attribute">class</span>=<span class="value">"ui-switchable-panel"</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>new Carousel({
+    element: '#carousel-demo-2',
+    easing: 'easeOutStrong',
+    effect: 'scrollx',
+    autoplay: true
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> Carousel({
+    element: <span class="string">'#carousel-demo-2'</span>,
+    easing: <span class="string">'easeOutStrong'</span>,
+    effect: <span class="string">'scrollx'</span>,
+    autoplay: <span class="literal">true</span>
+}).render();</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

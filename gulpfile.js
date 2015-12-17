@@ -27,7 +27,7 @@ gulp.task('uglify-core', ['core'], function() {
 })
 
 gulp.task('ui', function() {
-	return gulp.src([ 
+	return gulp.src([
 										'src/utility/position.js',
 										'src/utility/iframe-shim.js',
 										'src/utility/messenger.js',
@@ -69,5 +69,12 @@ gulp.task('lib', function() {
 						 .pipe(gulp.dest('dist/lib'))
 })
 
+gulp.task('examples', ['uglify-core', 'uglify-ui', 'asset', 'lib'], function() {
+	return gulp.src('dist/**/*.*')
+					   .pipe(gulp.dest('examples/content/dist/'))
+})
 
-gulp.task('default', ['uglify-core', 'uglify-ui', 'asset', 'lib']);
+gulp.task('default', ['examples']);
+
+
+

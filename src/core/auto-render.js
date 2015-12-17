@@ -27,7 +27,7 @@ var Hui = Hui || {};
     var elements = []
 
     root.find('[data-widget]').each(function(i, element) {
-      if (!exports.isDataApiOff(element)) {
+      if (!Hui.AutoRender.isDataApiOff(element)) {
         modules.push(element.getAttribute('data-widget').toLowerCase())
         elements.push(element)
       }
