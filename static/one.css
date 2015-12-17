@@ -329,7 +329,7 @@ html, body {
   margin: 0 auto;
   zoom: 1;
 }
-.container:after {
+.container::after {
   content: " ";
   display: block;
   visibility: none;
@@ -343,8 +343,8 @@ html, body {
 }
 .footer {
   margin: 0 auto;
-  max-width: 500px;
-  *width: 500px;
+  max-width: 700px;
+  *width: 700px;
   color: #555;
   color: rgba(0, 0, 0, 0.5);
   font-size: 15px;
@@ -358,7 +358,7 @@ html, body {
 .copyright a {
   color: #ddd;
 }
-@media (max-width: 650px) {
+@media (max-width: 850px) {
   .footer {
     padding-bottom: 10px;
   }

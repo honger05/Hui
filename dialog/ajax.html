@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>Dialog - ajax 载入内容</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="./">dialog</a>
+          <a href="../switchable/">switchable</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">Dialog - ajax 载入内容</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link href="../dist/asset/alice/dialog.css" rel="stylesheet"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<style>
+.fn-hide {display:none;}
+</style>
+
+<button id="example1">打开对话框（ajax）</button>
+
+<script>var Dialog = Hui.Dialog;
+var example = new Dialog({
+    trigger: '#example1',
+    content: './ajax-page.html?ajax'
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Dialog = Hui.Dialog;
+<span class="keyword">var</span> example = <span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example1'</span>,
+    content: <span class="string">'./ajax-page.html?ajax'</span>
+});</code></pre></div><button id="example2">打开对话框（iframe）</button>
+
+<script>var example = new Dialog({
+    trigger: '#example2',
+    content: './ajax-page.html'
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> example = <span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example2'</span>,
+    content: <span class="string">'./ajax-page.html'</span>
+});</code></pre></div><p>ajax-page 的内容如下：</p>
+<div class="highlight"><pre><code class="xml"><span class="doctype">&lt;!DOCTYPE HTML&gt;</span>
+<span class="tag">&lt;<span class="title">html</span>&gt;</span>
+<span class="tag">&lt;<span class="title">head</span>&gt;</span>
+  <span class="tag">&lt;<span class="title">style</span>&gt;</span><span class="css">
+  <span class="tag">body</span> <span class="rules">{<span class="rule"><span class="attribute">color</span>:<span class="value">red</span></span>; <span class="rule"><span class="attribute">height</span>:<span class="value"> <span class="number">200</span>px</span></span>;<span class="rule">}</span></span>
+  </span><span class="tag">&lt;/<span class="title">style</span>&gt;</span>
+<span class="tag">&lt;<span class="title">head</span>&gt;</span>
+<span class="tag">&lt;<span class="title">body</span>&gt;</span>
+  <span class="tag">&lt;<span class="title">div</span>&gt;</span>我是一个页面的内容<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+  <span class="tag">&lt;<span class="title">div</span>&gt;</span>我是一个页面的内容<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">body</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">html</span>&gt;</span></code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>
