@@ -11,8 +11,8 @@
 <script src="../dist/core-debug.js"></script>
 <script src="../dist/hui-debug.js"></script>
 
-[two-dialog](./twoDialog.html)
-[direct-show](./directShow.html)
+[two-dialog](./two-dialog.html)
+[direct-show](./direct-show.html)
 [custom](./custom.html)
 [confirmbox](./confirmbox.html)
 [ajax](./ajax.html)
