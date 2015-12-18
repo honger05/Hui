@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>其他示例</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="./">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">其他示例</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+<h2 id="email-自动补全">Email 自动补全</h2><p>这个功能很常用，在输入账号的时候希望补全常用的邮箱后缀</p>
+<p>通过 dataSource 实现，每次输入 dataSource 都根据输入自动生成，并设置 filter 为空</p>
+<input id="example" type="text" value="" />
+
+<script>var AutoComplete = Hui.AutoComplete;
+
+var data = [
+    '163.com',
+    '126.com',
+    'gmail.com'
+];
+new AutoComplete({
+    trigger: '#example',
+    dataSource: function(query) {
+        query = query.replace(/^(.*)@.*$/,'$1');
+        return $.map(data, function(v) {
+            return query + '@' + v;
+        });
+    }
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> AutoComplete = Hui.AutoComplete;
+
+<span class="keyword">var</span> data = [
+    <span class="string">'163.com'</span>,
+    <span class="string">'126.com'</span>,
+    <span class="string">'gmail.com'</span>
+];
+<span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#example'</span>,
+    dataSource: <span class="function"><span class="keyword">function</span><span class="params">(query)</span> {</span>
+        query = query.replace(<span class="regexp">/^(.*)@.*$/</span>,<span class="string">'$1'</span>);
+        <span class="keyword">return</span> $.map(data, <span class="function"><span class="keyword">function</span><span class="params">(v)</span> {</span>
+            <span class="keyword">return</span> query + <span class="string">'@'</span> + v;
+        });
+    }
+}).render();</code></pre></div><h2 id="选中后新开窗口">选中后新开窗口</h2><form action="">
+  <input id="acTrigger" type="text" value="" />
+</form>
+
+
+<div class="nico-insert-code"><script id="acTrigger4-template" type="text/x-handlebars-template">
+  <div class="{{classPrefix}}">
+    <div class="{{classPrefix}}-content">
+      {{> header}}
+      <ul data-role="items">
+      {{#if items}}
+        {{#each items}}
+          <li data-role="item" class="{{../classPrefix}}-item">
+            <a href="http://www.baidu.com" target="_blank">
+            {{#include parent=.. }}{{> html}}{{/include}}
+            </a>
+          </li>
+        {{/each}}
+      {{else}}
+          <li class="{{../classPrefix}}-item">无匹配的产品和服务</li>
+      {{/if}}
+      </ul>
+      {{> footer}}
+      <p><a href="" target="_blank">“信用卡”相关的帮助</a></p>
+    </div>
+  </div>
+</script></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">script</span> <span class="attribute">id</span>=<span class="value">"acTrigger4-template"</span> <span class="attribute">type</span>=<span class="value">"text/x-handlebars-template"</span>&gt;</span><span class="javascript">
+  &lt;div class=<span class="string">"{{classPrefix}}"</span>&gt;
+    <span class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"{{classPrefix}}-content"</span>&gt;</span>
+      {{&gt; header}}
+      <span class="tag">&lt;<span class="title">ul</span> <span class="attribute">data-role</span>=<span class="value">"items"</span>&gt;</span>
+      {{#if items}}
+        {{#each items}}
+          <span class="tag">&lt;<span class="title">li</span> <span class="attribute">data-role</span>=<span class="value">"item"</span> <span class="attribute">class</span>=<span class="value">"{{../classPrefix}}-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"http://www.baidu.com"</span> <span class="attribute">target</span>=<span class="value">"_blank"</span>&gt;</span>
+            {{#include parent=.. }}{{&gt; html}}{{/include}}
+            <span class="tag">&lt;/<span class="title">a</span>&gt;</span>
+          <span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+        {{/each}}
+      {{else}}
+          <span class="tag">&lt;<span class="title">li</span> <span class="attribute">class</span>=<span class="value">"{{../classPrefix}}-item"</span>&gt;</span>无匹配的产品和服务<span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+      {{/if}}
+      <span class="tag">&lt;/<span class="title">ul</span>&gt;</span>
+      {{&gt; footer}}
+      <span class="tag">&lt;<span class="title">p</span>&gt;</span><span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">""</span> <span class="attribute">target</span>=<span class="value">"_blank"</span>&gt;</span>“信用卡”相关的帮助<span class="tag">&lt;/<span class="title">a</span>&gt;</span><span class="tag">&lt;/<span class="title">p</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+  <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+</span></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></code></pre></div><script>var ac = new AutoComplete({
+  trigger: '#acTrigger',
+  template: $('#acTrigger4-template').html(),
+  width: '200',
+  dataSource: [
+    '信用卡',
+    '信息 '
+  ]
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> ac = <span class="keyword">new</span> AutoComplete({
+  trigger: <span class="string">'#acTrigger'</span>,
+  template: $(<span class="string">'#acTrigger4-template'</span>).html(),
+  width: <span class="string">'200'</span>,
+  dataSource: [
+    <span class="string">'信用卡'</span>,
+    <span class="string">'信息 '</span>
+  ]
+}).render();</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

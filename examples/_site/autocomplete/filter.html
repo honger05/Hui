@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>过滤器</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="./">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">过滤器</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<h2 id="输出过滤">输出过滤</h2><p>输出过滤将数据源的值通过一定规则过滤后输出，下面的规则为“匹配输入值在中间”</p>
+<input id="acTrigger1" type="text" value="" />
+
+<script>var AutoComplete = Hui.AutoComplete;
+
+new AutoComplete({
+    trigger: '#acTrigger1',
+    dataSource: ['abc', 'abd', 'abe', 'acd'],
+    filter: function(data, query) {
+        var result = [];
+        if (!query) return result;
+        $.each(data, function(index, item) {
+            var value = item.value;
+            if (new RegExp('\\w+'+query+'\\w+').test(value)) {
+                result.push(item);
+            }
+        });
+        return result;
+    },
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> AutoComplete = Hui.AutoComplete;
+
+<span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger1'</span>,
+    dataSource: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>],
+    filter: <span class="function"><span class="keyword">function</span><span class="params">(data, query)</span> {</span>
+        <span class="keyword">var</span> result = [];
+        <span class="keyword">if</span> (!query) <span class="keyword">return</span> result;
+        $.each(data, <span class="function"><span class="keyword">function</span><span class="params">(index, item)</span> {</span>
+            <span class="keyword">var</span> value = item.value;
+            <span class="keyword">if</span> (<span class="keyword">new</span> RegExp(<span class="string">'\\w+'</span>+query+<span class="string">'\\w+'</span>).test(value)) {
+                result.push(item);
+            }
+        });
+        <span class="keyword">return</span> result;
+    },
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="全字符匹配">全字符匹配</h2><input id="acTrigger3" type="text" value="" />
+
+<script>new AutoComplete({
+    trigger: '#acTrigger3',
+    dataSource: ['abc abd', 'bcd tcd', 'cbdc abdc'],
+    filter: 'stringMatch',
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger3'</span>,
+    dataSource: [<span class="string">'abc abd'</span>, <span class="string">'bcd tcd'</span>, <span class="string">'cbdc abdc'</span>],
+    filter: <span class="string">'stringMatch'</span>,
+    width: <span class="number">150</span>
+}).render();</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

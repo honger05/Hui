@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>公用消息容器</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="./">validator</a>
+          <a href="../autocomplete/">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">公用消息容器</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<p>如果多个校验项公用了一个消息提示容器，容易出现消息互相覆盖的情况。可以通过单独定制 showMessage 和 hideMessage 来完成。</p>
+<div class="nico-insert-code">
+
+<div class="cell">
+    <form id="test-form" class="ui-form">
+        <div class="ui-form-item">
+            <label for="start" class="ui-label"><span class="ui-form-required">*</span>起止日期：</label>
+            <input id="start" name="start" class="ui-input ui-input-date" type="text" />
+            -
+            <input id="end" name="end" class="ui-input ui-input-date" type="text" />
+        </div>
+
+        <div class="ui-form-item">
+            <span class="ui-button-morange ui-button"><input class="ui-button-text" value="确定" type="submit"></span>
+        </div>
+    </form>
+</div></div><div class="highlight"><pre><code class="xml">
+
+<span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"cell"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">form</span> <span class="attribute">id</span>=<span class="value">"test-form"</span> <span class="attribute">class</span>=<span class="value">"ui-form"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"start"</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>起止日期：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"start"</span> <span class="attribute">name</span>=<span class="value">"start"</span> <span class="attribute">class</span>=<span class="value">"ui-input ui-input-date"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span>
+            -
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"end"</span> <span class="attribute">name</span>=<span class="value">"end"</span> <span class="attribute">class</span>=<span class="value">"ui-input ui-input-date"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-button-morange ui-button"</span>&gt;</span><span class="tag">&lt;<span class="title">input</span> <span class="attribute">class</span>=<span class="value">"ui-button-text"</span> <span class="attribute">value</span>=<span class="value">"确定"</span> <span class="attribute">type</span>=<span class="value">"submit"</span>&gt;</span><span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">form</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var Validator = Hui.Validator;
+
+$(function() {
+    var validator = new Validator({
+        element: '#test-form',
+        onFormValidated: function(err, results, form) {
+            console && console.log && console.log(err, results, form);
+        }
+    });
+
+    validator.addItem({
+        element: '#start',
+        required: true,
+        rule: '',
+        display: '开始日期'
+    })
+    .addItem({
+        element: '#end',
+        required: true,
+        rule: '',
+        display: '结束日期',
+        showMessage: function(message, element) {
+            // 结束日期出错后会调用这个函数。如果前面的开始日期没有出错的时候才显示自己的出错消息。
+            var startErr = $.trim(this.getExplain(element).html());
+            if (!startErr) {
+                this.getExplain(element).html(message);
+                this.getItem(element).addClass(this.get('itemErrorClass'));
+            }
+        },
+        hideMessage: function(message, element) {
+            // 结束日期校验通过后会调用这个函数。如果前面的开始日期没有出错的时候才清空消息。
+            var startErr = $.trim(this.getExplain(element).html());
+            if (!startErr) {
+                this.getExplain(element).html(element.attr('data-explain') || ' ');
+                this.getItem(element).removeClass(this.get('itemErrorClass'));
+            }
+        }
+    });
+
+
+    // 直接显示某个错误信息
+    var item = validator.query('#start');
+    console.log(item.getMessage('required'));
+
+    // 强制显示字段的错误信息
+    //validator.get("showMessage").call(validator, item.getMessage('required'), item.element);
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Validator = Hui.Validator;
+
+$(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> validator = <span class="keyword">new</span> Validator({
+        element: <span class="string">'#test-form'</span>,
+        onFormValidated: <span class="function"><span class="keyword">function</span><span class="params">(err, results, form)</span> {</span>
+            console &amp;&amp; console.log &amp;&amp; console.log(err, results, form);
+        }
+    });
+
+    validator.addItem({
+        element: <span class="string">'#start'</span>,
+        required: <span class="literal">true</span>,
+        rule: <span class="string">''</span>,
+        display: <span class="string">'开始日期'</span>
+    })
+    .addItem({
+        element: <span class="string">'#end'</span>,
+        required: <span class="literal">true</span>,
+        rule: <span class="string">''</span>,
+        display: <span class="string">'结束日期'</span>,
+        showMessage: <span class="function"><span class="keyword">function</span><span class="params">(message, element)</span> {</span>
+            <span class="comment">// 结束日期出错后会调用这个函数。如果前面的开始日期没有出错的时候才显示自己的出错消息。</span>
+            <span class="keyword">var</span> startErr = $.trim(<span class="keyword">this</span>.getExplain(element).html());
+            <span class="keyword">if</span> (!startErr) {
+                <span class="keyword">this</span>.getExplain(element).html(message);
+                <span class="keyword">this</span>.getItem(element).addClass(<span class="keyword">this</span>.get(<span class="string">'itemErrorClass'</span>));
+            }
+        },
+        hideMessage: <span class="function"><span class="keyword">function</span><span class="params">(message, element)</span> {</span>
+            <span class="comment">// 结束日期校验通过后会调用这个函数。如果前面的开始日期没有出错的时候才清空消息。</span>
+            <span class="keyword">var</span> startErr = $.trim(<span class="keyword">this</span>.getExplain(element).html());
+            <span class="keyword">if</span> (!startErr) {
+                <span class="keyword">this</span>.getExplain(element).html(element.attr(<span class="string">'data-explain'</span>) || <span class="string">' '</span>);
+                <span class="keyword">this</span>.getItem(element).removeClass(<span class="keyword">this</span>.get(<span class="string">'itemErrorClass'</span>));
+            }
+        }
+    });
+
+
+    <span class="comment">// 直接显示某个错误信息</span>
+    <span class="keyword">var</span> item = validator.query(<span class="string">'#start'</span>);
+    console.log(item.getMessage(<span class="string">'required'</span>));
+
+    <span class="comment">// 强制显示字段的错误信息</span>
+    <span class="comment">//validator.get("showMessage").call(validator, item.getMessage('required'), item.element);</span>
+});</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

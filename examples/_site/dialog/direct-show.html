@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>Dialog - 直接显示</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="./">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="../autocomplete/">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">Dialog - 直接显示</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link href="../dist/asset/alice/dialog.css" rel="stylesheet"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<p>无需 trigger，直接显示在页面上。</p>
+<style>
+.fn-hide {display:none;}
+</style>
+
+<hr>
+<script>var Dialog = Hui.Dialog;
+
+new Dialog({
+    content: '<div style="padding:50px">没有 trigger，直接显示出来</div>'
+}).show();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Dialog = Hui.Dialog;
+
+<span class="keyword">new</span> Dialog({
+    content: <span class="string">'&lt;div style="padding:50px"&gt;没有 trigger，直接显示出来&lt;/div&gt;'</span>
+}).show();</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

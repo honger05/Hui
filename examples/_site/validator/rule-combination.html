@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>校验规则组合</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="./">validator</a>
+          <a href="../autocomplete/">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">校验规则组合</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<h2 id="或校验">或校验</h2><p>注册表单中有一个常见的场景是：用户名是电子邮箱或者密码。但是我们拥有的校验规则是电子邮箱和手机号码，应该怎么办？</p>
+<p>使用校验规则组合可以组合出新的规则完成这种校验。</p>
+<div class="cell">
+    <form id="test-form" class="ui-form" >
+        <div class="ui-form-item">
+            <label for="username" class="ui-label"><span class="ui-form-required">*</span>用户名：</label>
+            <input id="username" name="username" class="ui-input" required />
+            <div class="ui-form-explain">用户名为电子邮箱或手机号码。</div>
+        </div>
+        <div class="ui-form-item">
+            <span class="ui-button-morange ui-button"><input class="ui-button-text" value="确定" type="submit"></span>
+        </div>
+    </form>
+</div>
+
+
+<script>var Validator = Hui.Validator;
+
+$(function() {
+    //1. 获取校验规则对象
+    var email = Validator.getRule('email');
+    //2. 组合校验规则
+    var emailOrMobile = email.or('mobile');
+    //3. 注册新的校验规则
+    Validator.addRule('emailOrMobile', emailOrMobile, '{{display}}的格式必须是电子邮箱或者手机号码。');
+
+    var v = new Validator({
+        element: '#test-form'
+    });
+    // 某个字段添加rule
+    v.addItem({
+        element: '[name=username]',
+        required: true,
+        rule: 'emailOrMobile',
+        display: '用户名',
+        errormessageNotEmail: '特殊的错误提示会显示！(配置优先)'
+    });
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Validator = Hui.Validator;
+
+$(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    <span class="comment">//1. 获取校验规则对象</span>
+    <span class="keyword">var</span> email = Validator.getRule(<span class="string">'email'</span>);
+    <span class="comment">//2. 组合校验规则</span>
+    <span class="keyword">var</span> emailOrMobile = email.or(<span class="string">'mobile'</span>);
+    <span class="comment">//3. 注册新的校验规则</span>
+    Validator.addRule(<span class="string">'emailOrMobile'</span>, emailOrMobile, <span class="string">'{{display}}的格式必须是电子邮箱或者手机号码。'</span>);
+
+    <span class="keyword">var</span> v = <span class="keyword">new</span> Validator({
+        element: <span class="string">'#test-form'</span>
+    });
+    <span class="comment">// 某个字段添加rule</span>
+    v.addItem({
+        element: <span class="string">'[name=username]'</span>,
+        required: <span class="literal">true</span>,
+        rule: <span class="string">'emailOrMobile'</span>,
+        display: <span class="string">'用户名'</span>,
+        errormessageNotEmail: <span class="string">'特殊的错误提示会显示！(配置优先)'</span>
+    });
+});</code></pre></div><h2 id="非校验">非校验</h2><div class="cell">
+    <form id="test-form2" class="ui-form">
+        <div class="ui-form-item">
+            <label for="subject" class="ui-label"><span class="ui-form-required">*</span>主题：</label>
+            <input id="subject" name="subject" class="ui-input" />
+            <div class="ui-form-explain">请输入主题。</div>
+        </div>
+        <div class="ui-form-item">
+            <span class="ui-button-morange ui-button"><input class="ui-button-text" value="确定" type="submit"></span>
+        </div>
+    </form>
+</div>
+
+<script>
+// 非email规则
+Validator.addRule('notEmail', Validator.getRule('email').not(), '不能输入email!');
+
+var v = new Validator({
+    element: '#test-form2'
+});
+
+// 某个字段添加rule
+v.addItem({
+    element: '[name=subject]',
+    required: true,
+    rule: 'notEmail',
+    errormessageNotEmail: '特殊的错误提示会显示！(配置优先)'
+});</script><div class="highlight"><pre><code class="javascript">
+<span class="comment">// 非email规则</span>
+Validator.addRule(<span class="string">'notEmail'</span>, Validator.getRule(<span class="string">'email'</span>).not(), <span class="string">'不能输入email!'</span>);
+
+<span class="keyword">var</span> v = <span class="keyword">new</span> Validator({
+    element: <span class="string">'#test-form2'</span>
+});
+
+<span class="comment">// 某个字段添加rule</span>
+v.addItem({
+    element: <span class="string">'[name=subject]'</span>,
+    required: <span class="literal">true</span>,
+    rule: <span class="string">'notEmail'</span>,
+    errormessageNotEmail: <span class="string">'特殊的错误提示会显示！(配置优先)'</span>
+});</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

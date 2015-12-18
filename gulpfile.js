@@ -37,6 +37,7 @@ gulp.task('ui', function() {
 										'src/ui/popup.js',
 										'src/ui/dialog.js',
 										'src/ui/confirmbox.js',
+
 										// switchable ui
 										'src/ui/switchable/plugins/easing.js',
 										'src/ui/switchable/plugins/effects.js',
@@ -46,7 +47,26 @@ gulp.task('ui', function() {
 										'src/ui/switchable/tabs.js',
 										'src/ui/switchable/slide.js',
 										'src/ui/switchable/carousel.js',
-										'src/ui/switchable/accordion.js'
+										'src/ui/switchable/accordion.js',
+
+										// validator
+										'src/ui/validator/async.js',
+										'src/ui/validator/rule.js',
+										'src/ui/validator/utils.js',
+										'src/ui/validator/item.js',
+										'src/ui/validator/core.js',
+										'src/ui/validator/validator.js',
+
+										// qrcode
+										// 'src/utility/qrcode/qrcodealg.js',
+										// 'src/utility/qrcode/index.js',
+
+										// autocomplete
+										'src/ui/autocomplete/input.js',
+										'src/ui/autocomplete/filter.js',
+										'src/ui/autocomplete/data-source.js',
+										'src/ui/autocomplete/autocomplete.js'
+
 									])
 						 .pipe(concat('hui-debug.js'))
 						 .pipe(gulp.dest('dist/'))
@@ -69,10 +89,12 @@ gulp.task('lib', function() {
 						 .pipe(gulp.dest('dist/lib'))
 })
 
-gulp.task('examples', ['uglify-core', 'uglify-ui', 'asset', 'lib'], function() {
+gulp.task('examples', ['base'], function() {
 	return gulp.src('dist/**/*.*')
 					   .pipe(gulp.dest('examples/content/dist/'))
 })
+
+gulp.task('base', ['uglify-core', 'uglify-ui', 'asset', 'lib']);
 
 gulp.task('default', ['examples']);
 

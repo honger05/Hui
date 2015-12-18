@@ -1,0 +1,339 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>Validate with Javascript</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="./">validator</a>
+          <a href="../autocomplete/">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">Validate with Javascript</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/form.css"></p>
+<p><link rel="stylesheet" href="../dist/asset/alice/button.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<div class="nico-insert-code">
+<div class="cell">
+    <form id="test-form" class="ui-form">
+        <div class="ui-form-item">
+            <label for="username" class="ui-label"><span class="ui-form-required">*</span>用户名：</label>
+            <input id="username" name="username" class="ui-input" type="text" />
+            <div class="ui-form-explain">用户名为电子邮箱。</div>
+        </div>
+
+        <div class="ui-form-item ui-form-item-error">
+            <label for="password" class="ui-label"><span class="ui-form-required">*</span>密码：</label>
+            <input id="password" name="password" type="password" class="ui-input" data-explain="请输入5-20位的密码。" value="123" />
+            <div class="ui-form-explain">密码的长度必须大于或等于5。</div>
+        </div>
+
+        <div class="ui-form-item">
+            <label for="password-confirmation" class="ui-label"><span class="ui-form-required">*</span>重复输入密码：</label>
+            <input id="password-confirmation" name="password-confirmation" type="password" class="ui-input" />
+            <div class="ui-form-explain">请再输入一遍。</div>
+        </div>
+
+        <div class="ui-form-item">
+            <label class="ui-label"><span class="ui-form-required">*</span>性别：</label>
+            <input id="male" value="male" name="sex" type="radio" > <label for="male">Male</label>
+            <input id="female" value="female" name="sex" type="radio"> <label for="female">Female</label>
+        </div>
+
+        <div class="ui-form-item">
+            <label class="ui-label"><span class="ui-form-required">*</span>交通工具：</label>
+            <label for="Bike"><input class="ui-hidden" name="vehicle" id="Bike" type="checkbox">自行车</label>
+            <label for="Car"><input class="ui-hidden" name="vehicle" id="Car" type="checkbox">汽车</label>
+        </div>
+
+        <div class="ui-form-item">
+            <label class="ui-label"><span class="ui-form-required">*</span>国籍：</label>
+            <select name="country" >
+              <option value="">请选择</option>
+              <option value="china">China</option>
+              <option value="usa">USA</option>
+            </select>
+        </div>
+
+
+        <div class="ui-form-item">
+      <label for="hidden-input" class="ui-label"><span class="ui-form-required">*</span>隐藏项：</label>
+            <input type="hidden" id="hidden-input" value="" />
+    </div>
+
+        <div class="ui-form-item">
+      <label for="note" class="ui-label"><span class="ui-form-required">*</span>备注：</label>
+      <textarea class="ui-textarea" name="note" id="note"></textarea>
+    </div>
+
+        <div class="ui-form-item">
+            <span class="ui-button-morange ui-button"><input class="ui-button-text" value="确定" type="submit"></span>
+        </div>
+
+    </form>
+
+
+    <p>
+        <a id="toogle-disabled" href="javascript:;" class="ui-button ui-button-lwhite">切换域 Disabled</a>
+    </p>
+</div></div><div class="highlight"><pre><code class="xml">
+<span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"cell"</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">form</span> <span class="attribute">id</span>=<span class="value">"test-form"</span> <span class="attribute">class</span>=<span class="value">"ui-form"</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"username"</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>用户名：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"username"</span> <span class="attribute">name</span>=<span class="value">"username"</span> <span class="attribute">class</span>=<span class="value">"ui-input"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span>
+            <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-explain"</span>&gt;</span>用户名为电子邮箱。<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item ui-form-item-error"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"password"</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>密码：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"password"</span> <span class="attribute">name</span>=<span class="value">"password"</span> <span class="attribute">type</span>=<span class="value">"password"</span> <span class="attribute">class</span>=<span class="value">"ui-input"</span> <span class="attribute">data-explain</span>=<span class="value">"请输入5-20位的密码。"</span> <span class="attribute">value</span>=<span class="value">"123"</span> /&gt;</span>
+            <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-explain"</span>&gt;</span>密码的长度必须大于或等于5。<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"password-confirmation"</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>重复输入密码：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"password-confirmation"</span> <span class="attribute">name</span>=<span class="value">"password-confirmation"</span> <span class="attribute">type</span>=<span class="value">"password"</span> <span class="attribute">class</span>=<span class="value">"ui-input"</span> /&gt;</span>
+            <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-explain"</span>&gt;</span>请再输入一遍。<span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>性别：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"male"</span> <span class="attribute">value</span>=<span class="value">"male"</span> <span class="attribute">name</span>=<span class="value">"sex"</span> <span class="attribute">type</span>=<span class="value">"radio"</span> &gt;</span> <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"male"</span>&gt;</span>Male<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"female"</span> <span class="attribute">value</span>=<span class="value">"female"</span> <span class="attribute">name</span>=<span class="value">"sex"</span> <span class="attribute">type</span>=<span class="value">"radio"</span>&gt;</span> <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"female"</span>&gt;</span>Female<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>交通工具：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"Bike"</span>&gt;</span><span class="tag">&lt;<span class="title">input</span> <span class="attribute">class</span>=<span class="value">"ui-hidden"</span> <span class="attribute">name</span>=<span class="value">"vehicle"</span> <span class="attribute">id</span>=<span class="value">"Bike"</span> <span class="attribute">type</span>=<span class="value">"checkbox"</span>&gt;</span>自行车<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"Car"</span>&gt;</span><span class="tag">&lt;<span class="title">input</span> <span class="attribute">class</span>=<span class="value">"ui-hidden"</span> <span class="attribute">name</span>=<span class="value">"vehicle"</span> <span class="attribute">id</span>=<span class="value">"Car"</span> <span class="attribute">type</span>=<span class="value">"checkbox"</span>&gt;</span>汽车<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">label</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>国籍：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">select</span> <span class="attribute">name</span>=<span class="value">"country"</span> &gt;</span>
+              <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">""</span>&gt;</span>请选择<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+              <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"china"</span>&gt;</span>China<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+              <span class="tag">&lt;<span class="title">option</span> <span class="attribute">value</span>=<span class="value">"usa"</span>&gt;</span>USA<span class="tag">&lt;/<span class="title">option</span>&gt;</span>
+            <span class="tag">&lt;/<span class="title">select</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+      <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"hidden-input"</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>隐藏项：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">input</span> <span class="attribute">type</span>=<span class="value">"hidden"</span> <span class="attribute">id</span>=<span class="value">"hidden-input"</span> <span class="attribute">value</span>=<span class="value">""</span> /&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+      <span class="tag">&lt;<span class="title">label</span> <span class="attribute">for</span>=<span class="value">"note"</span> <span class="attribute">class</span>=<span class="value">"ui-label"</span>&gt;</span><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-form-required"</span>&gt;</span>*<span class="tag">&lt;/<span class="title">span</span>&gt;</span>备注：<span class="tag">&lt;/<span class="title">label</span>&gt;</span>
+      <span class="tag">&lt;<span class="title">textarea</span> <span class="attribute">class</span>=<span class="value">"ui-textarea"</span> <span class="attribute">name</span>=<span class="value">"note"</span> <span class="attribute">id</span>=<span class="value">"note"</span>&gt;</span><span class="tag">&lt;/<span class="title">textarea</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"ui-form-item"</span>&gt;</span>
+            <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"ui-button-morange ui-button"</span>&gt;</span><span class="tag">&lt;<span class="title">input</span> <span class="attribute">class</span>=<span class="value">"ui-button-text"</span> <span class="attribute">value</span>=<span class="value">"确定"</span> <span class="attribute">type</span>=<span class="value">"submit"</span>&gt;</span><span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+        <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+
+    <span class="tag">&lt;/<span class="title">form</span>&gt;</span>
+
+
+    <span class="tag">&lt;<span class="title">p</span>&gt;</span>
+        <span class="tag">&lt;<span class="title">a</span> <span class="attribute">id</span>=<span class="value">"toogle-disabled"</span> <span class="attribute">href</span>=<span class="value">"javascript:;"</span> <span class="attribute">class</span>=<span class="value">"ui-button ui-button-lwhite"</span>&gt;</span>切换域 Disabled<span class="tag">&lt;/<span class="title">a</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">p</span>&gt;</span>
+<span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var Validator = Hui.Validator;
+
+$(function() {
+    var t1 = (new Date).getTime();
+    var validator = new Validator({
+        element: '#test-form',
+        onFormValidated: function(err, results, form) {
+            window.console && console.log && console.log(err, results, form);
+        },
+        failSilently: true
+    });
+    var t2 = (new Date).getTime();
+    document.title = (t2 - t1);
+
+    validator.addItem({
+        element: '#username',
+        required: true,
+        rule: 'email'
+    })
+
+    .addItem({
+        element: '#password',
+        required: true,
+        rule: 'minlength{"min":5} maxlength{"max":20}'
+    })
+
+    .addItem({
+        element: '#password-confirmation',
+        required: true,
+        rule: 'confirmation{target: "#password", name: "第一遍"}',
+        errormessageRequired: '请再重复输入一遍密码，不能留空。'
+    })
+
+    .addItem({
+        element: '[name=sex]',
+        required: true,
+        errormessageRequired: '请选择您的性别。'
+    })
+
+    .addItem({
+        element: '[name=vehicle]',
+        required: true,
+        errormessageRequired: '请选择您的交通工具。'
+    })
+
+    .addItem({
+        element: '[name=country]',
+        required: true,
+        errormessageRequired: '请选择您的国籍。'
+    })
+
+    .addItem({
+        element: '[name=note]',
+        required: true,
+        errormessageRequired: '请填写备注'
+    })
+
+    // 隐藏的表单域默认是校验的，但是加了 skipHidden 之后就不校验了。也可以在 new Validator 中进行配置
+    .addItem({
+        skipHidden: true,
+        element: '#hidden-input',
+        required: true,
+        errormessageRequired: '隐藏的表单域值为空哦'
+    })
+
+    // 这一项的DOM并不存在，由于设置了 failSilently 所以不会报错。
+    .addItem({
+        element: '[name=notExisted]',
+        required: true
+    });
+
+
+    $("#toogle-disabled").click(function() {
+        for(var i = 0 ; i < validator.items.length; i++) {
+            var item = validator.items[i].element;
+            if (item.attr("disabled")) {
+                item.removeAttr("disabled");
+            } else {
+                item.attr("disabled", true);
+            }
+        }
+    });
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Validator = Hui.Validator;
+
+$(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> t1 = (<span class="keyword">new</span> Date).getTime();
+    <span class="keyword">var</span> validator = <span class="keyword">new</span> Validator({
+        element: <span class="string">'#test-form'</span>,
+        onFormValidated: <span class="function"><span class="keyword">function</span><span class="params">(err, results, form)</span> {</span>
+            window.console &amp;&amp; console.log &amp;&amp; console.log(err, results, form);
+        },
+        failSilently: <span class="literal">true</span>
+    });
+    <span class="keyword">var</span> t2 = (<span class="keyword">new</span> Date).getTime();
+    document.title = (t2 - t1);
+
+    validator.addItem({
+        element: <span class="string">'#username'</span>,
+        required: <span class="literal">true</span>,
+        rule: <span class="string">'email'</span>
+    })
+
+    .addItem({
+        element: <span class="string">'#password'</span>,
+        required: <span class="literal">true</span>,
+        rule: <span class="string">'minlength{"min":5} maxlength{"max":20}'</span>
+    })
+
+    .addItem({
+        element: <span class="string">'#password-confirmation'</span>,
+        required: <span class="literal">true</span>,
+        rule: <span class="string">'confirmation{target: "#password", name: "第一遍"}'</span>,
+        errormessageRequired: <span class="string">'请再重复输入一遍密码，不能留空。'</span>
+    })
+
+    .addItem({
+        element: <span class="string">'[name=sex]'</span>,
+        required: <span class="literal">true</span>,
+        errormessageRequired: <span class="string">'请选择您的性别。'</span>
+    })
+
+    .addItem({
+        element: <span class="string">'[name=vehicle]'</span>,
+        required: <span class="literal">true</span>,
+        errormessageRequired: <span class="string">'请选择您的交通工具。'</span>
+    })
+
+    .addItem({
+        element: <span class="string">'[name=country]'</span>,
+        required: <span class="literal">true</span>,
+        errormessageRequired: <span class="string">'请选择您的国籍。'</span>
+    })
+
+    .addItem({
+        element: <span class="string">'[name=note]'</span>,
+        required: <span class="literal">true</span>,
+        errormessageRequired: <span class="string">'请填写备注'</span>
+    })
+
+    <span class="comment">// 隐藏的表单域默认是校验的，但是加了 skipHidden 之后就不校验了。也可以在 new Validator 中进行配置</span>
+    .addItem({
+        skipHidden: <span class="literal">true</span>,
+        element: <span class="string">'#hidden-input'</span>,
+        required: <span class="literal">true</span>,
+        errormessageRequired: <span class="string">'隐藏的表单域值为空哦'</span>
+    })
+
+    <span class="comment">// 这一项的DOM并不存在，由于设置了 failSilently 所以不会报错。</span>
+    .addItem({
+        element: <span class="string">'[name=notExisted]'</span>,
+        required: <span class="literal">true</span>
+    });
+
+
+    $(<span class="string">"#toogle-disabled"</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span> ; i &lt; validator.items.length; i++) {
+            <span class="keyword">var</span> item = validator.items[i].element;
+            <span class="keyword">if</span> (item.attr(<span class="string">"disabled"</span>)) {
+                item.removeAttr(<span class="string">"disabled"</span>);
+            } <span class="keyword">else</span> {
+                item.attr(<span class="string">"disabled"</span>, <span class="literal">true</span>);
+            }
+        }
+    });
+});</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

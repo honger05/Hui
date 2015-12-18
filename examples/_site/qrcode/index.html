@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>演示文档</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="../autocomplete/">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">演示文档</h1>
+  <div class="entry-content" itemprop="articleBody"><script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<h2 id="采用默认方式画二维码-quot">采用默认方式画二维码&quot;</h2><div class="nico-insert-code"><div id="qrcodeDefault"></div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"qrcodeDefault"</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var Qrcode = Hui.Qrcode;
+var qrnode = new Qrcode({
+  text: 'http://www.alipay.com/'
+});
+document.getElementById('qrcodeDefault').appendChild(qrnode);</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Qrcode = Hui.Qrcode;
+<span class="keyword">var</span> qrnode = <span class="keyword">new</span> Qrcode({
+  text: <span class="string">'http://www.alipay.com/'</span>
+});
+document.getElementById(<span class="string">'qrcodeDefault'</span>).appendChild(qrnode);</code></pre></div><h2 id="调用table画二维码">调用table画二维码</h2><div class="nico-insert-code"><div id="qrcodeTable"></div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"qrcodeTable"</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var qrnode1 = new Qrcode({
+  render: 'table',
+  correctLevel: 0,
+  pdground: '#00aaee',
+  text: 'http://www.alipay.com/',
+  size: 100,
+  image : 'https://t.alipayobjects.com/images/rmsweb/T1ZsxhXdxbXXXXXXXX.png'
+});
+document.getElementById('qrcodeTable').appendChild(qrnode1);</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> qrnode1 = <span class="keyword">new</span> Qrcode({
+  render: <span class="string">'table'</span>,
+  correctLevel: <span class="number">0</span>,
+  pdground: <span class="string">'#00aaee'</span>,
+  text: <span class="string">'http://www.alipay.com/'</span>,
+  size: <span class="number">100</span>,
+  image : <span class="string">'https://t.alipayobjects.com/images/rmsweb/T1ZsxhXdxbXXXXXXXX.png'</span>
+});
+document.getElementById(<span class="string">'qrcodeTable'</span>).appendChild(qrnode1);</code></pre></div><h2 id="调用canvas画二维码">调用canvas画二维码</h2><div class="nico-insert-code"><div id="qrcodeCanvas"></div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"qrcodeCanvas"</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var qrnode2 = new Qrcode({
+  render: 'canvas',
+  correctLevel: 0,
+  text: 'http://www.alipay.com/',
+  size: 300,
+  background: '#eeeeee',
+  foreground: '#667766',
+  pdground: '#00aaee',
+  image : 'https://t.alipayobjects.com/images/rmsweb/T1ZsxhXdxbXXXXXXXX.png',
+  imageSize : 100
+});
+document.getElementById('qrcodeCanvas').appendChild(qrnode2);</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> qrnode2 = <span class="keyword">new</span> Qrcode({
+  render: <span class="string">'canvas'</span>,
+  correctLevel: <span class="number">0</span>,
+  text: <span class="string">'http://www.alipay.com/'</span>,
+  size: <span class="number">300</span>,
+  background: <span class="string">'#eeeeee'</span>,
+  foreground: <span class="string">'#667766'</span>,
+  pdground: <span class="string">'#00aaee'</span>,
+  image : <span class="string">'https://t.alipayobjects.com/images/rmsweb/T1ZsxhXdxbXXXXXXXX.png'</span>,
+  imageSize : <span class="number">100</span>
+});
+document.getElementById(<span class="string">'qrcodeCanvas'</span>).appendChild(qrnode2);</code></pre></div><h2 id="调用svg画二维码">调用svg画二维码</h2><div class="nico-insert-code"><div id="qrcodeSVG"></div></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"qrcodeSVG"</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span></code></pre></div><script>var qrnode3 = new Qrcode({
+  correctLevel: 0,
+  render: 'svg',
+  text: 'http://www.alipay.com/',
+  size: 200,
+  pdground: '#00aaee',
+  image : 'https://t.alipayobjects.com/images/rmsweb/T1ZsxhXdxbXXXXXXXX.png',
+  imageSize:30
+});
+document.getElementById('qrcodeSVG').appendChild(qrnode3);</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> qrnode3 = <span class="keyword">new</span> Qrcode({
+  correctLevel: <span class="number">0</span>,
+  render: <span class="string">'svg'</span>,
+  text: <span class="string">'http://www.alipay.com/'</span>,
+  size: <span class="number">200</span>,
+  pdground: <span class="string">'#00aaee'</span>,
+  image : <span class="string">'https://t.alipayobjects.com/images/rmsweb/T1ZsxhXdxbXXXXXXXX.png'</span>,
+  imageSize:<span class="number">30</span>
+});
+document.getElementById(<span class="string">'qrcodeSVG'</span>).appendChild(qrnode3);</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

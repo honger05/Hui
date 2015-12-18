@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>两个对话框共享遮罩层</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="./">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="../autocomplete/">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">两个对话框共享遮罩层</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link href="../dist/asset/alice/dialog.css" rel="stylesheet"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+<blockquote>
+<p>这里要注意 mask 的表现。</p>
+</blockquote>
+<button id="example1">打开第一个对话框</button>
+<button id="example2" style="display: none">打开第二个对话框</button>
+
+<script>var Dialog = Hui.Dialog;
+var Confirmbox = Dialog.ConfirmBox;
+
+var d1 = new Dialog({
+    trigger: '#example1',
+    height: 400,
+    content: '#example2'
+});
+d1.after('show', function() {
+    $('#example2').show();
+});
+
+$('#example2').click(function() {
+    Confirmbox.alert('xxx');
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Dialog = Hui.Dialog;
+<span class="keyword">var</span> Confirmbox = Dialog.ConfirmBox;
+
+<span class="keyword">var</span> d1 = <span class="keyword">new</span> Dialog({
+    trigger: <span class="string">'#example1'</span>,
+    height: <span class="number">400</span>,
+    content: <span class="string">'#example2'</span>
+});
+d1.after(<span class="string">'show'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    $(<span class="string">'#example2'</span>).show();
+});
+
+$(<span class="string">'#example2'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    Confirmbox.alert(<span class="string">'xxx'</span>);
+});</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

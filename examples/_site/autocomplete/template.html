@@ -1,0 +1,157 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>自定义模板</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="./">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">自定义模板</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<h2 id="使用参数来自定义模板">使用参数来自定义模板</h2><input id="acTrigger1" type="text" value="" />
+
+<style>
+.ui-select-item a {padding: 7px 10px 7px 0;}
+.ui-select-item a span {float: right; color: #ccc;}
+.ui-select-header, .ui-select-footer {padding: 3px 10px; font-size: 12px;}
+.ui-select-footer {text-align: right;}
+</style>
+
+<script>var AutoComplete = Hui.AutoComplete;
+
+var ac = new AutoComplete({
+    trigger: '#acTrigger1',
+    header: '<div class="{{classPrefix}}-header">筛选省市：</div>',
+    footer: '<div class="{{classPrefix}}-footer">搜索 {{query}} 的{{length}}个结果</div>',
+    html: '<strong>{{city}}</strong><span>{{prov}}</span>',
+    dataSource: [
+      {city: '上海', prov: '上海', label: '上海', value: 'shanghai', alias: ['上海']},
+      {city: '苏州', prov: '江苏', label: '苏州', value: 'suzhou', alias: ['苏州']},
+      {city: '深圳', prov: '广州', label: '深圳', value: 'shenzhen', alias: ['深圳']},
+      {city: '沈阳', prov: '辽宁', label: '沈阳', value: 'shenyang', alias: ['沈阳']}
+    ],
+    width: 150
+}).render();
+
+ac.element.on('click', '#xxx', function() {
+  //alert(1);
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> AutoComplete = Hui.AutoComplete;
+
+<span class="keyword">var</span> ac = <span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger1'</span>,
+    header: <span class="string">'&lt;div class="{{classPrefix}}-header"&gt;筛选省市：&lt;/div&gt;'</span>,
+    footer: <span class="string">'&lt;div class="{{classPrefix}}-footer"&gt;搜索 {{query}} 的{{length}}个结果&lt;/div&gt;'</span>,
+    html: <span class="string">'&lt;strong&gt;{{city}}&lt;/strong&gt;&lt;span&gt;{{prov}}&lt;/span&gt;'</span>,
+    dataSource: [
+      {city: <span class="string">'上海'</span>, prov: <span class="string">'上海'</span>, label: <span class="string">'上海'</span>, value: <span class="string">'shanghai'</span>, alias: [<span class="string">'上海'</span>]},
+      {city: <span class="string">'苏州'</span>, prov: <span class="string">'江苏'</span>, label: <span class="string">'苏州'</span>, value: <span class="string">'suzhou'</span>, alias: [<span class="string">'苏州'</span>]},
+      {city: <span class="string">'深圳'</span>, prov: <span class="string">'广州'</span>, label: <span class="string">'深圳'</span>, value: <span class="string">'shenzhen'</span>, alias: [<span class="string">'深圳'</span>]},
+      {city: <span class="string">'沈阳'</span>, prov: <span class="string">'辽宁'</span>, label: <span class="string">'沈阳'</span>, value: <span class="string">'shenyang'</span>, alias: [<span class="string">'沈阳'</span>]}
+    ],
+    width: <span class="number">150</span>
+}).render();
+
+ac.element.on(<span class="string">'click'</span>, <span class="string">'#xxx'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+  <span class="comment">//alert(1);</span>
+});</code></pre></div><h2 id="自定义整个模板">自定义整个模板</h2><p>默认的模板可以查看 <code>src/autocomplete.handlebars</code>，如果有修改模板的操作可如下自己定义</p>
+<div class="nico-insert-code"><script id="acTrigger4-template" type="text/x-handlebars-template">
+  <div class="{{classPrefix}}">
+    {{#if items}}
+    <ul class="{{classPrefix}}-content" data-role="items">
+      {{#each items}}
+      <li data-role="item" class="{{../classPrefix}}-item"><a href="javascript:''">{{> html}}</a></li>
+      {{/each}}
+    </ul>
+    {{else}}
+    <ul class="{{classPrefix}}-content">
+      <li class="{{../classPrefix}}-item">
+      没有匹配任何数据
+      </li>
+    </ul>
+    {{/if}}
+  </div>
+</script></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">script</span> <span class="attribute">id</span>=<span class="value">"acTrigger4-template"</span> <span class="attribute">type</span>=<span class="value">"text/x-handlebars-template"</span>&gt;</span><span class="javascript">
+  &lt;div class=<span class="string">"{{classPrefix}}"</span>&gt;
+    {{#<span class="keyword">if</span> items}}
+    &lt;ul class=<span class="string">"{{classPrefix}}-content"</span> data-role=<span class="string">"items"</span>&gt;
+      {{#each items}}
+      &lt;li data-role=<span class="string">"item"</span> class=<span class="string">"{{../classPrefix}}-item"</span>&gt;<span class="xml"><span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"javascript:''"</span>&gt;</span>{{&gt; html}}<span class="tag">&lt;/<span class="title">a</span>&gt;</span><span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+      {{/each}}
+    <span class="tag">&lt;/<span class="title">ul</span>&gt;</span>
+    {{else}}
+    <span class="tag">&lt;<span class="title">ul</span> <span class="attribute">class</span>=<span class="value">"{{classPrefix}}-content"</span>&gt;</span>
+      <span class="tag">&lt;<span class="title">li</span> <span class="attribute">class</span>=<span class="value">"{{../classPrefix}}-item"</span>&gt;</span>
+      没有匹配任何数据
+      <span class="tag">&lt;/<span class="title">li</span>&gt;</span>
+    <span class="tag">&lt;/<span class="title">ul</span>&gt;</span>
+    {{/if}}
+  <span class="tag">&lt;/<span class="title">div</span>&gt;</span>
+</span></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></code></pre></div><p>当未匹配的时候会有提示</p>
+<input id="acTrigger4" type="text" value="" />
+
+<script>var AutoCompleteX = AutoComplete.extend({
+    _isEmpty: function() {
+      return false;
+    }
+});
+var ac1 = new AutoCompleteX({
+    trigger: '#acTrigger4',
+    template: $('#acTrigger4-template').html(),
+    dataSource: ['abc', 'abd', 'abe', 'acd'],
+    width: 150
+}).render();
+
+ac1.input.on('focus', function() {
+  ac.show();
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> AutoCompleteX = AutoComplete.extend({
+    _isEmpty: <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+      <span class="keyword">return</span> <span class="literal">false</span>;
+    }
+});
+<span class="keyword">var</span> ac1 = <span class="keyword">new</span> AutoCompleteX({
+    trigger: <span class="string">'#acTrigger4'</span>,
+    template: $(<span class="string">'#acTrigger4-template'</span>).html(),
+    dataSource: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>],
+    width: <span class="number">150</span>
+}).render();
+
+ac1.input.on(<span class="string">'focus'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+  ac.show();
+});</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

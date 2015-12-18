@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>基本操作</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="./">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">基本操作</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+<p><a href="./template.html">template</a>
+<a href="./other.html">other</a>
+<a href="./filter.html">filter</a>
+<a href="./datasource.html">datasource</a></p>
+<p>最简单的方式只需要提供 trigger 和 datasource。</p>
+<input id="acTrigger1" type="text" value="" />
+
+<script>var AutoComplete = Hui.AutoComplete;
+new AutoComplete({
+    trigger: '#acTrigger1',
+    dataSource: ['abc', 'abd', 'abe', 'acd'],
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> AutoComplete = Hui.AutoComplete;
+<span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger1'</span>,
+    dataSource: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>],
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="阻止回车事件">阻止回车事件</h2><p>当输入框在 form 中，直接回车会提交表单，这时需要设置 <code>submitOnEnter</code></p>
+<div class="nico-insert-code"><form name="" action="">
+    <input id="acTrigger2" type="text" value="" />
+</form></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">form</span> <span class="attribute">name</span>=<span class="value">""</span> <span class="attribute">action</span>=<span class="value">""</span>&gt;</span>
+    <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"acTrigger2"</span> <span class="attribute">type</span>=<span class="value">"text"</span> <span class="attribute">value</span>=<span class="value">""</span> /&gt;</span>
+<span class="tag">&lt;/<span class="title">form</span>&gt;</span></code></pre></div><script>new AutoComplete({
+    trigger: '#acTrigger2',
+    submitOnEnter: false,
+    dataSource: ['abc', 'abd', 'abe', 'acd'],
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger2'</span>,
+    submitOnEnter: <span class="literal">false</span>,
+    dataSource: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>],
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="动态设置是否提示">动态设置是否提示</h2><p>可动态调用 <code>disabled</code> 属性</p>
+<input id="acTrigger3" type="text" value="" />
+
+<p>状态：<a href="#" id="acTrigger3-extra" data-status="on">开启</a></p>
+<script>var ac = new AutoComplete({
+    trigger: '#acTrigger3',
+    dataSource: ['abc', 'abd', 'abe', 'acd'],
+    width: 150
+}).render();
+
+$('#acTrigger3-extra').click(function(e) {
+    e.preventDefault();
+    var o = $(this), status = (o.html() === '开启');
+    o.html(status? '关闭' : '开启')
+    ac.set('disabled', status);
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> ac = <span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger3'</span>,
+    dataSource: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>],
+    width: <span class="number">150</span>
+}).render();
+
+$(<span class="string">'#acTrigger3-extra'</span>).click(<span class="function"><span class="keyword">function</span><span class="params">(e)</span> {</span>
+    e.preventDefault();
+    <span class="keyword">var</span> o = $(<span class="keyword">this</span>), status = (o.html() === <span class="string">'开启'</span>);
+    o.html(status? <span class="string">'关闭'</span> : <span class="string">'开启'</span>)
+    ac.set(<span class="string">'disabled'</span>, status);
+});</code></pre></div><h2 id="默认选中第一个">默认选中第一个</h2><input id="acTrigger5" type="text" value="" />
+
+<script>new AutoComplete({
+    trigger: '#acTrigger5',
+    selectFirst: true,
+    dataSource: ['abc', 'abd', 'abe', 'acd'],
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger5'</span>,
+    selectFirst: <span class="literal">true</span>,
+    dataSource: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>],
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="高亮匹配值">高亮匹配值</h2><style>
+.ui-select-item-hl {background: yellow;}
+</style>
+
+<input id="acTrigger6" type="text" value="" />
+
+<script>new AutoComplete({
+    trigger: '#acTrigger6',
+    html: '{{{highlightItem label}}}',
+    dataSource: ['abc', 'abd', 'abe', 'acd'],
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger6'</span>,
+    html: <span class="string">'{{{highlightItem label}}}'</span>,
+    dataSource: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>],
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="下拉框高度固定-出现滚动条时-键盘上下选中项时跟随">下拉框高度固定, 出现滚动条时, 键盘上下选中项时跟随</h2><input id="scroll" type="text" value="" />
+
+<script>var ac1 = new AutoComplete({
+    trigger: '#scroll',
+    dataSource: ['abc', 'abd', 'abe', 'acd', 'ace', 'acf', 'acg', 'ach', 'aci', 'acj', 'ack'],
+    height: 120,
+    width: 200
+}).render();
+// 如果出现滚动条，点击滚动条会自动隐藏，因为触发了 input 的 blur
+// 如果对 blur 要求不多，可以去除
+// ac1.input.off('blur');
+ac1.element.children().css('overflow', 'scroll');</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> ac1 = <span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#scroll'</span>,
+    dataSource: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>, <span class="string">'ace'</span>, <span class="string">'acf'</span>, <span class="string">'acg'</span>, <span class="string">'ach'</span>, <span class="string">'aci'</span>, <span class="string">'acj'</span>, <span class="string">'ack'</span>],
+    height: <span class="number">120</span>,
+    width: <span class="number">200</span>
+}).render();
+<span class="comment">// 如果出现滚动条，点击滚动条会自动隐藏，因为触发了 input 的 blur</span>
+<span class="comment">// 如果对 blur 要求不多，可以去除</span>
+<span class="comment">// ac1.input.off('blur');</span>
+ac1.element.children().css(<span class="string">'overflow'</span>, <span class="string">'scroll'</span>);</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

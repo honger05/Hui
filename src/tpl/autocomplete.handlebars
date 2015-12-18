@@ -1,0 +1,13 @@
+<div class="{{classPrefix}}">
+  <div class="{{classPrefix}}-content">
+    {{> header}}
+    <ul data-role="items">
+    {{#each items}}
+      <li data-role="item" class="{{../classPrefix}}-item">
+        {{#include parent=.. }}{{> html}}{{/include}}
+      </li>
+    {{/each}}
+    </ul>
+    {{> footer}}
+  </div>
+</div>

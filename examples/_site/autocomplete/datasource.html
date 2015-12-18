@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>数据源</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="./">autocomplete</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">数据源</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<p>在使用前先看下数据源的文档</p>
+<h2 id="使用对象">使用对象</h2><p>数据源通常为数组，但也可以为对象，如果是对象默认会去找对象的 data 属性。</p>
+<p>在每次输入的时候都会调用下 dataSource</p>
+<input id="acTrigger1" type="text" value="" />
+
+<script>var AutoComplete = Hui.AutoComplete;
+new AutoComplete({
+    trigger: '#acTrigger1',
+    dataSource: {
+        data: ['abc', 'abd', 'abe', 'acd']
+    },
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> AutoComplete = Hui.AutoComplete;
+<span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger1'</span>,
+    dataSource: {
+        data: [<span class="string">'abc'</span>, <span class="string">'abd'</span>, <span class="string">'abe'</span>, <span class="string">'acd'</span>]
+    },
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="使用异步数据">使用异步数据</h2><p>一般异步获取后的数据不需要过滤了，可设置 <code>filter</code> 为空</p>
+<input id="acTrigger2" type="text" value="" />
+
+<script>new AutoComplete({
+    trigger: '#acTrigger2',
+    dataSource: './data.json?q={{query}}&nowrap',
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger2'</span>,
+    dataSource: <span class="string">'./data.json?q={{query}}&amp;nowrap'</span>,
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="自定义数据源">自定义数据源</h2><p>可以把本地数据和异步数据结合起来</p>
+<input id="acTrigger3" type="text" value="" />
+
+<script>var local = ['ade', 'adf'];
+new AutoComplete({
+    trigger: '#acTrigger3',
+    dataSource: function(value, done) {
+        var that = this;
+        $.ajax('./data.json?nowrap', {
+            dataType: 'json'
+        })
+        .success(function(data) {
+            done(data.concat(local));
+        })
+        .error(done);
+    },
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> local = [<span class="string">'ade'</span>, <span class="string">'adf'</span>];
+<span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger3'</span>,
+    dataSource: <span class="function"><span class="keyword">function</span><span class="params">(value, done)</span> {</span>
+        <span class="keyword">var</span> that = <span class="keyword">this</span>;
+        $.ajax(<span class="string">'./data.json?nowrap'</span>, {
+            dataType: <span class="string">'json'</span>
+        })
+        .success(<span class="function"><span class="keyword">function</span><span class="params">(data)</span> {</span>
+            done(data.concat(local));
+        })
+        .error(done);
+    },
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="处理嵌套结构">处理嵌套结构</h2><p>如果数据结构很复杂，你可以通过 <code>locator</code> 找到你要的数据</p>
+<input id="acTrigger4" type="text" value="" />
+
+<script>new AutoComplete({
+    trigger: '#acTrigger4',
+    locator: 'my.mother.father.brothers',
+    dataSource: {
+        my: {
+            mother: {
+                father: {
+                    brothers: [
+                        'abc',
+                        'abd',
+                        'abe',
+                        'acd'
+                    ]
+                }
+            }
+        }
+    },
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger4'</span>,
+    locator: <span class="string">'my.mother.father.brothers'</span>,
+    dataSource: {
+        my: {
+            mother: {
+                father: {
+                    brothers: [
+                        <span class="string">'abc'</span>,
+                        <span class="string">'abd'</span>,
+                        <span class="string">'abe'</span>,
+                        <span class="string">'acd'</span>
+                    ]
+                }
+            }
+        }
+    },
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="处理复杂数据结构">处理复杂数据结构</h2><p>数据不是字符串而是复杂结构</p>
+<input id="acTrigger5" type="text" value="" />
+
+<script>new AutoComplete({
+    trigger: '#acTrigger5',
+    dataSource: [
+      {value: 'abc', myprop: '123'},
+      {value: 'abd', myprop: '124'},
+      {value: 'abe', myprop: '125'},
+      {value: 'acd', myprop: '134'}
+    ],
+    width: 150
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger5'</span>,
+    dataSource: [
+      {value: <span class="string">'abc'</span>, myprop: <span class="string">'123'</span>},
+      {value: <span class="string">'abd'</span>, myprop: <span class="string">'124'</span>},
+      {value: <span class="string">'abe'</span>, myprop: <span class="string">'125'</span>},
+      {value: <span class="string">'acd'</span>, myprop: <span class="string">'134'</span>}
+    ],
+    width: <span class="number">150</span>
+}).render();</code></pre></div><h2 id="单独指定最终表单值">单独指定最终表单值</h2><p>利用复杂结构，可以指定与选项文本不同的值作为最终表单值。</p>
+<p>在下面的示例中，数据项的 <code>value</code> 属性用来匹配，
+<code>label</code> 属性用于选项展示，<code>target</code> 作为最终用来提交的表单值。</p>
+<input id="acTrigger6" type="text" value="" />
+
+<script>new AutoComplete({
+    trigger: '#acTrigger6',
+    filter: 'stringMatch',
+    dataSource: [
+        {
+            value: '天弘增利宝货币 000198 TIANHONGZENGLIBAO',
+            label: '天弘增利宝货币 000198',
+            target: '000198'
+        },
+        {
+            value: '交银21天 519716 JYLC21TZQA',
+            label: '交银21天 519716',
+            target: '519716'
+        },
+        {
+            value: '招商理财7天B 217026 ZSLC7TZQB',
+            label: '招商理财7天B 217026',
+            target: '217026'
+        }
+    ],
+    width: 200
+}).render();</script><div class="highlight"><pre><code class="javascript"><span class="keyword">new</span> AutoComplete({
+    trigger: <span class="string">'#acTrigger6'</span>,
+    filter: <span class="string">'stringMatch'</span>,
+    dataSource: [
+        {
+            value: <span class="string">'天弘增利宝货币 000198 TIANHONGZENGLIBAO'</span>,
+            label: <span class="string">'天弘增利宝货币 000198'</span>,
+            target: <span class="string">'000198'</span>
+        },
+        {
+            value: <span class="string">'交银21天 519716 JYLC21TZQA'</span>,
+            label: <span class="string">'交银21天 519716'</span>,
+            target: <span class="string">'519716'</span>
+        },
+        {
+            value: <span class="string">'招商理财7天B 217026 ZSLC7TZQB'</span>,
+            label: <span class="string">'招商理财7天B 217026'</span>,
+            target: <span class="string">'217026'</span>
+        }
+    ],
+    width: <span class="number">200</span>
+}).render();</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

@@ -3132,3 +3132,2095 @@ Hui.Switchable.Slide = Hui.Switchable.extend({
   Hui.Switchable.Accordion = Accordion;
 
 })(Hui)
+
+// async
+
+!(function(Validation) {
+  'use strict'
+
+  var async = {};
+
+  Validation.Async = async;
+
+  //// cross-browser compatiblity functions ////
+
+  var _forEach = function (arr, iterator) {
+    if (arr.forEach) {
+      return arr.forEach(iterator);
+    }
+    for (var i = 0; i < arr.length; i += 1) {
+      iterator(arr[i], i, arr);
+    }
+  };
+
+  var _map = function (arr, iterator) {
+    if (arr.map) {
+      return arr.map(iterator);
+    }
+    var results = [];
+    _forEach(arr, function (x, i, a) {
+      results.push(iterator(x, i, a));
+    });
+    return results;
+  };
+
+  var _keys = function (obj) {
+    if (Object.keys) {
+      return Object.keys(obj);
+    }
+    var keys = [];
+    for (var k in obj) {
+      if (obj.hasOwnProperty(k)) {
+        keys.push(k);
+      }
+    }
+    return keys;
+  };
+
+  //// exported async module functions ////
+
+  async.forEach = function (arr, iterator, callback) {
+    callback = callback || function () {
+    };
+    if (!arr.length) {
+      return callback();
+    }
+    var completed = 0;
+    _forEach(arr, function (x) {
+      iterator(x, function (err) {
+        if (err) {
+          callback(err);
+          callback = function () {
+          };
+        }
+        else {
+          completed += 1;
+          if (completed === arr.length) {
+            callback(null);
+          }
+        }
+      });
+    });
+  };
+
+  async.forEachSeries = function (arr, iterator, callback) {
+    callback = callback || function () {
+    };
+    if (!arr.length) {
+      return callback();
+    }
+    var completed = 0;
+    var iterate = function () {
+      iterator(arr[completed], function (err) {
+        if (err) {
+          callback(err);
+          callback = function () {
+          };
+        }
+        else {
+          completed += 1;
+          if (completed === arr.length) {
+            callback(null);
+          }
+          else {
+            iterate();
+          }
+        }
+      });
+    };
+    iterate();
+  };
+
+  var doParallel = function (fn) {
+    return function () {
+      var args = Array.prototype.slice.call(arguments);
+      return fn.apply(null, [async.forEach].concat(args));
+    };
+  };
+  var doSeries = function (fn) {
+    return function () {
+      var args = Array.prototype.slice.call(arguments);
+      return fn.apply(null, [async.forEachSeries].concat(args));
+    };
+  };
+
+
+  var _asyncMap = function (eachfn, arr, iterator, callback) {
+    var results = [];
+    arr = _map(arr, function (x, i) {
+      return {index: i, value: x};
+    });
+    eachfn(arr, function (x, callback) {
+      iterator(x.value, function (err, v) {
+        results[x.index] = v;
+        callback(err);
+      });
+    }, function (err) {
+      callback(err, results);
+    });
+  };
+  async.map = doParallel(_asyncMap);
+  async.mapSeries = doSeries(_asyncMap);
+
+  async.series = function (tasks, callback) {
+    callback = callback || function () {
+    };
+    if (tasks.constructor === Array) {
+      async.mapSeries(tasks, function (fn, callback) {
+        if (fn) {
+          fn(function (err) {
+            var args = Array.prototype.slice.call(arguments, 1);
+            if (args.length <= 1) {
+              args = args[0];
+            }
+            callback.call(null, err, args);
+          });
+        }
+      }, callback);
+    }
+    else {
+      var results = {};
+      async.forEachSeries(_keys(tasks), function (k, callback) {
+        tasks[k](function (err) {
+          var args = Array.prototype.slice.call(arguments, 1);
+          if (args.length <= 1) {
+            args = args[0];
+          }
+          results[k] = args;
+          callback(err);
+        });
+      }, function (err) {
+        callback(err, results);
+      });
+    }
+  };
+
+
+})(Hui.Validation = Hui.Validation || {})
+
+
+
+!(function($, Validation) {
+
+    var rules = {},
+        messages = {};
+
+    function Rule(name, oper) {
+        var self = this;
+
+        self.name = name;
+
+        if (oper instanceof RegExp) {
+            self.operator = function (opts, commit) {
+                var rslt = oper.test($(opts.element).val());
+                commit(rslt ? null : opts.rule, _getMsg(opts, rslt));
+            };
+        } else if ($.isFunction(oper)) {
+            self.operator = function (opts, commit) {
+                var rslt = oper.call(this, opts, function (result, msg) {
+                    commit(result ? null : opts.rule, msg || _getMsg(opts, result));
+                });
+                // 当是异步判断时, 返回 undefined, 则执行上面的 commit
+                if (rslt !== undefined) {
+                    commit(rslt ? null : opts.rule, _getMsg(opts, rslt));
+                }
+            };
+        } else {
+            throw new Error('The second argument must be a regexp or a function.');
+        }
+    }
+
+    Rule.prototype.and = function (name, options) {
+        var target = name instanceof Rule ? name : getRule(name, options);
+
+        if (!target) {
+            throw new Error('No rule with name "' + name + '" found.');
+        }
+
+        var that = this;
+        var operator = function (opts, commit) {
+            that.operator.call(this, opts, function (err, msg) {
+                if (err) {
+                    commit(err, _getMsg(opts, !err));
+                } else {
+                    target.operator.call(this, opts, commit);
+                }
+            });
+        };
+
+        return new Rule(null, operator);
+    };
+    Rule.prototype.or = function (name, options) {
+        var target = name instanceof Rule ? name : getRule(name, options);
+
+        if (!target) {
+            throw new Error('No rule with name "' + name + '" found.');
+        }
+
+        var that = this;
+        var operator = function (opts, commit) {
+            that.operator.call(this, opts, function (err, msg) {
+                if (err) {
+                    target.operator.call(this, opts, commit);
+                } else {
+                    commit(null, _getMsg(opts, true));
+                }
+            });
+        };
+
+        return new Rule(null, operator);
+    };
+    Rule.prototype.not = function (options) {
+        var target = getRule(this.name, options);
+        var operator = function (opts, commit) {
+            target.operator.call(this, opts, function (err, msg) {
+                if (err) {
+                    commit(null, _getMsg(opts, true));
+                } else {
+                    commit(true, _getMsg(opts, false))
+                }
+            });
+        };
+
+        return new Rule(null, operator);
+    };
+
+
+    function addRule(name, operator, message) {
+        if ($.isPlainObject(name)) {
+            $.each(name, function (i, v) {
+                if ($.isArray(v))
+                    addRule(i, v[0], v[1]);
+                else
+                    addRule(i, v);
+            });
+            return this;
+        }
+
+        if (operator instanceof Rule) {
+            rules[name] = new Rule(name, operator.operator);
+        } else {
+            rules[name] = new Rule(name, operator);
+        }
+        setMessage(name, message);
+
+        return this;
+    }
+
+    function _getMsg(opts, b) {
+        var ruleName = opts.rule;
+        var msgtpl;
+
+        if (opts.message) { // user specifies a message
+            if ($.isPlainObject(opts.message)) {
+                msgtpl = opts.message[b ? 'success' : 'failure'];
+                // if user's message is undefined，use default
+                typeof msgtpl === 'undefined' && (msgtpl = messages[ruleName][b ? 'success' : 'failure']);
+            } else {//just string
+                msgtpl = b ? '' : opts.message
+            }
+        } else { // use default
+            msgtpl = messages[ruleName][b ? 'success' : 'failure'];
+        }
+
+        return msgtpl ? compileTpl(opts, msgtpl) : msgtpl;
+    }
+
+    function setMessage(name, msg) {
+        if ($.isPlainObject(name)) {
+            $.each(name, function (i, v) {
+                setMessage(i, v);
+            });
+            return this;
+        }
+
+        if ($.isPlainObject(msg)) {
+            messages[name] = msg;
+        } else {
+            messages[name] = {
+                failure: msg
+            };
+        }
+        return this;
+    }
+
+
+
+    function getRule(name, opts) {
+        if (opts) {
+            var rule = rules[name];
+            return new Rule(null, function (options, commit) {
+                rule.operator($.extend(null, options, opts), commit);
+            });
+        } else {
+            return rules[name];
+        }
+    }
+
+    function compileTpl(obj, tpl) {
+        var result = tpl;
+
+        var regexp1 = /\{\{[^\{\}]*\}\}/g,
+            regexp2 = /\{\{(.*)\}\}/;
+
+        var arr = tpl.match(regexp1);
+        arr && $.each(arr, function (i, v) {
+            var key = v.match(regexp2)[1];
+            var value = obj[$.trim(key)];
+            result = result.replace(v, value);
+        });
+        return result;
+    }
+
+    addRule('required', function (options) {
+        var element = $(options.element);
+
+        var t = element.attr('type');
+        switch (t) {
+            case 'checkbox':
+            case 'radio':
+                var checked = false;
+                element.each(function (i, item) {
+                    if ($(item).prop('checked')) {
+                        checked = true;
+                        return false;
+                    }
+                });
+                return checked;
+            default:
+                return Boolean($.trim(element.val()));
+        }
+    }, '请输入{{display}}');
+
+    addRule('email', /^\s*([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,20})\s*$/, '{{display}}的格式不正确');
+
+    addRule('text', /.*/);
+
+    addRule('password', /.*/);
+
+    addRule('radio', /.*/);
+
+    addRule('checkbox', /.*/);
+
+    addRule('url', /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/, '{{display}}的格式不正确');
+
+    addRule('number', /^[+-]?[1-9][0-9]*(\.[0-9]+)?([eE][+-][1-9][0-9]*)?$|^[+-]?0?\.[0-9]+([eE][+-][1-9][0-9]*)?$|^0$/, '{{display}}的格式不正确');
+
+    // 00123450 是 digits 但不是 number
+    // 1.23 是 number 但不是 digits
+    addRule('digits', /^\s*\d+\s*$/, '{{display}}的格式不正确');
+
+    addRule('date', /^\d{4}\-[01]?\d\-[0-3]?\d$|^[01]\d\/[0-3]\d\/\d{4}$|^\d{4}年[01]?\d月[0-3]?\d[日号]$/, '{{display}}的格式不正确');
+
+    addRule('min', function (options) {
+        var element = options.element,
+            min = options.min;
+        return Number(element.val()) >= Number(min);
+    }, '{{display}}必须大于或者等于{{min}}');
+
+    addRule('max', function (options) {
+        var element = options.element,
+            max = options.max;
+        return Number(element.val()) <= Number(max);
+    }, '{{display}}必须小于或者等于{{max}}');
+
+    addRule('minlength', function (options) {
+        var element = options.element;
+        var l = element.val().length;
+        return l >= Number(options.min);
+    }, '{{display}}的长度必须大于或等于{{min}}');
+
+    addRule('maxlength', function (options) {
+        var element = options.element;
+        var l = element.val().length;
+        return l <= Number(options.max);
+    }, '{{display}}的长度必须小于或等于{{max}}');
+
+    addRule('mobile', /^1\d{10}$/, '请输入正确的{{display}}');
+
+    addRule('confirmation', function (options) {
+        var element = options.element,
+            target = $(options.target);
+        return element.val() == target.val();
+    }, '两次输入的{{display}}不一致，请重新输入');
+
+    Validation.Rule = {
+        addRule: addRule,
+        setMessage: setMessage,
+        getMessage: function(options, isSuccess) {
+            return _getMsg(options, isSuccess);
+        },
+        getRule: getRule,
+        getOperator: function (name) {
+            return rules[name].operator;
+        }
+    };
+
+})(jQuery, (Hui.Validation = Hui.Validation || {}))
+
+
+!(function($, Validation) {
+
+    var Rule = Validation.Rule;
+
+    var u_count = 0;
+    var helpers = {};
+
+
+    function unique() {
+        return '__anonymous__' + (u_count++);
+    }
+
+    function parseRules(str) {
+        if (!str) return null;
+
+        return str.match(/[a-zA-Z0-9\-\_]+(\{[^\{\}]*\})?/g);
+    }
+
+    function parseDom(field) {
+        var field = $(field);
+
+        var result = {};
+        var arr = [];
+
+        //parse required attribute
+        var required = field.attr('required');
+        if (required) {
+            arr.push('required');
+            result.required = true;
+        }
+
+        //parse type attribute
+        var type = field.attr('type');
+        if (type && type != 'submit' && type != 'cancel' && type != 'checkbox' && type != 'radio' && type != 'select' && type != 'select-one' && type != 'file' && type != 'hidden' && type != 'textarea') {
+
+            if (!Rule.getRule(type)) {
+                throw new Error('Form field with type "' + type + '" not supported!');
+            }
+
+            arr.push(type);
+        }
+
+        //parse min attribute
+        var min = field.attr('min');
+        if (min) {
+            arr.push('min{"min":"' + min + '"}');
+        }
+
+        //parse max attribute
+        var max = field.attr('max');
+        if (max) {
+            arr.push('max{max:' + max + '}');
+        }
+
+        //parse minlength attribute
+        var minlength = field.attr('minlength');
+        if (minlength) {
+            arr.push('minlength{min:' + minlength + '}');
+        }
+
+        //parse maxlength attribute
+        var maxlength = field.attr('maxlength');
+        if (maxlength) {
+            arr.push('maxlength{max:' + maxlength + '}');
+        }
+
+        //parse pattern attribute
+        var pattern = field.attr('pattern');
+        if (pattern) {
+            var regexp = new RegExp(pattern),
+                name = unique();
+            Rule.addRule(name, regexp);
+            arr.push(name);
+        }
+
+        //parse data-rule attribute to get custom rules
+        var rules = field.attr('data-rule');
+        rules = rules && parseRules(rules);
+        if (rules)
+            arr = arr.concat(rules);
+
+        result.rule = arr.length == 0 ? null : arr.join(' ');
+
+        return result;
+    }
+
+    function parseJSON(str) {
+        if (!str)
+            return null;
+
+        var NOTICE = 'Invalid option object "' + str + '".';
+
+        // remove braces
+        str = str.slice(1, -1);
+
+        var result = {};
+
+        var arr = str.split(',');
+        $.each(arr, function (i, v) {
+            arr[i] = $.trim(v);
+            if (!arr[i])
+                throw new Error(NOTICE);
+
+            var arr2 = arr[i].split(':');
+
+            var key = $.trim(arr2[0]),
+                value = $.trim(arr2[1]);
+
+            if (!key || !value)
+                throw new Error(NOTICE);
+
+            result[getValue(key)] = $.trim(getValue(value));
+        });
+
+        // 'abc' -> 'abc'  '"abc"' -> 'abc'
+        function getValue(str) {
+            if (str.charAt(0) == '"' && str.charAt(str.length - 1) == '"' || str.charAt(0) == "'" && str.charAt(str.length - 1) == "'") {
+                return eval(str);
+            }
+            return str;
+        }
+
+        return result;
+    }
+
+    function isHidden (ele) {
+        var w = ele[0].offsetWidth,
+            h = ele[0].offsetHeight,
+            force = (ele.prop('tagName') === 'TR');
+        return (w===0 && h===0 && !force) ? true : (w!==0 && h!==0 && !force) ? false : ele.css('display') === 'none';
+    }
+
+    Validation.Utils = {
+        parseRule: function (str) {
+            var match = str.match(/([^{}:\s]*)(\{[^\{\}]*\})?/);
+
+            // eg. { name: "valueBetween", param: {min: 1, max: 2} }
+            return {
+                name: match[1],
+                param: parseJSON(match[2])
+            };
+        },
+        parseRules: parseRules,
+        parseDom: parseDom,
+        isHidden: isHidden,
+        helper: function (name, fn) {
+            if (fn) {
+                helpers[name] = fn;
+                return this;
+            }
+
+            return helpers[name];
+        }
+    };
+
+})(jQuery, (Hui.Validation = Hui.Validation || {}))
+
+
+
+!(function($, Validation) {
+
+    var utils = Validation.Utils,
+        Widget = Hui.Widget,
+        async = Validation.Async,
+        Rule = Validation.Rule;
+
+    var setterConfig = {
+        value: $.noop,
+        setter: function (val) {
+            return $.isFunction(val) ? val : utils.helper(val);
+        }
+    };
+
+    function hasRequired(val){
+        return (' ' + val + ' ').indexOf(' required ') >= 0;
+    }
+
+    var Item = Widget.extend({
+        attrs: {
+            rule: {
+                value: '',
+                getter: function(val){
+                    val = $.trim(val);
+
+                    // 在获取的时候动态判断是否required，来追加或者删除 rule: required
+                    if (this.get('required')) {
+                        if (!val || !hasRequired(val)) {
+                            val = $.trim('required ' + val);
+                        }
+                    } else {
+                        if (hasRequired(val)) {
+                            val = $.trim((' ' + val + ' ').replace(' required ', ' '));
+                        }
+                    }
+
+                    return val;
+                }
+            },
+            display: null,
+            displayHelper: null,
+            triggerType: {
+                getter: function (val) {
+                    if (!val)
+                        return val;
+
+                    var element = this.element,
+                        type = element.attr('type');
+
+                    // 将 select, radio, checkbox 的 blur 和 key 事件转成 change
+                    var b = element.is("select") || type == 'radio' || type == 'checkbox';
+                    if (b && (val.indexOf('blur') > -1 || val.indexOf('key') > -1))
+                        return 'change';
+                    return val;
+                }
+            },
+            required: {
+                value: false,
+                getter: function(val) {
+                    return $.isFunction(val) ? val() : val;
+                }
+            },
+            checkNull: true,
+            errormessage: null,
+            onItemValidate: setterConfig,
+            onItemValidated: setterConfig,
+            showMessage: setterConfig,
+            hideMessage: setterConfig
+        },
+
+        setup: function () {
+            if (!this.get('display') && $.isFunction(this.get('displayHelper'))) {
+                this.set('display', this.get('displayHelper')(this));
+            }
+        },
+
+        // callback 为当这个项校验完后, 通知 form 的 async.forEachSeries 此项校验结束并把结果通知到 async,
+        // 通过 async.forEachSeries 的第二个参数 Fn(item, cb) 的 cb 参数
+        execute: function (callback, context) {
+            var self = this,
+                elemDisabled = !!self.element.attr("disabled");
+
+            context = context || {};
+            // 如果是设置了不检查不可见元素的话, 直接 callback
+            if (self.get('skipHidden') && utils.isHidden(self.element) || elemDisabled) {
+                callback && callback(null, '', self.element);
+                return self;
+            }
+
+            self.trigger('itemValidate', self.element, context.event);
+
+            var rules = utils.parseRules(self.get('rule'));
+
+            if (rules) {
+                _metaValidate(self, rules, function (err, msg) {
+                    self.trigger('itemValidated', err, msg, self.element, context.event);
+                    callback && callback(err, msg, self.element);
+                });
+            } else {
+                self.trigger('itemValidated', null, '', self.element, context.event);
+                callback && callback(null, '', self.element);
+            }
+
+            return self;
+        },
+        getMessage: function(theRule, isSuccess, options) {
+            var message = '',
+                self = this,
+                rules = utils.parseRules(self.get('rule'));
+
+            isSuccess = !!isSuccess;
+
+            $.each(rules, function(i, item) {
+                var obj = utils.parseRule(item),
+                    ruleName = obj.name,
+                    param = obj.param;
+
+                if (theRule === ruleName) {
+                    message = Rule.getMessage($.extend(options || {}, getMsgOptions(param, ruleName, self)), isSuccess);
+                }
+            });
+            return message;
+        }
+    });
+
+    function getMsgOptions(param, ruleName, self) {
+        var options = $.extend({}, param, {
+            element: self.element,
+            display: (param && param.display) || self.get('display'),
+            rule: ruleName
+        });
+
+        var message = self.get('errormessage' + upperFirstLetter(ruleName)) || self.get('errormessage');
+        if (message && !options.message) {
+            options.message = {
+                failure: message
+            };
+        }
+
+        return options;
+    }
+
+    function upperFirstLetter(str) {
+        str = str + "";
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function _metaValidate(self, rules, callback) {
+        var ele = self.element;
+
+        if (!self.get('required')) {
+            var truly = false;
+            var t = ele.attr('type');
+            switch (t) {
+                case 'checkbox':
+                case 'radio':
+                    var checked = false;
+                    ele.each(function (i, item) {
+                        if ($(item).prop('checked')) {
+                            checked = true;
+                            return false;
+                        }
+                    });
+                    truly = checked;
+                    break;
+                default:
+                    truly = !!ele.val();
+            }
+
+            // 非必要且没有值的时候, 直接 callback
+            if (!truly) {
+                callback && callback(null, null);
+                return;
+            }
+        }
+
+        if (!$.isArray(rules))
+            throw new Error('No validation rule specified or not specified as an array.');
+
+        var tasks = [];
+
+        $.each(rules, function (i, item) {
+            var obj = utils.parseRule(item),
+                ruleName = obj.name,
+                param = obj.param;
+
+            var ruleOperator = Rule.getOperator(ruleName);
+            if (!ruleOperator)
+                throw new Error('Validation rule with name "' + ruleName + '" cannot be found.');
+
+            var options = getMsgOptions(param, ruleName, self);
+
+            tasks.push(function (cb) {
+                // cb 为 async.series 每个 tasks 函数 的 callback!!
+                // callback(err, results)
+                // self._validator 为当前 Item 对象所在的 Validator 对象
+                ruleOperator.call(self._validator, options, cb);
+            });
+        });
+
+
+        // form.execute -> 多个 item.execute -> 多个 rule.operator
+        // 多个 rule 的校验是串行的, 前一个出错, 立即停止
+        // async.series 的 callback fn, 在执行 tasks 结束或某个 task 出错后被调用
+        // 其参数 results 为当前每个 task 执行的结果
+        // 函数内的 callback 回调给项校验
+        async.series(tasks, function (err, results) {
+            callback && callback(err, results[results.length - 1]);
+        });
+    }
+
+    Validation.Item = Item;
+
+})(jQuery, (Hui.Validation = Hui.Validation || {}))
+
+
+
+!(function($, Validation) {
+
+    var async = Validation.Async,
+        Widget = Hui.Widget,
+        utils = Validation.Utils,
+        Rule = Validation.Rule,
+        Item = Validation.Item;
+
+    var validators = [];
+
+    var setterConfig = {
+        value: $.noop,
+        setter: function (val) {
+            return $.isFunction(val) ? val : utils.helper(val);
+        }
+    };
+
+    var Core = Widget.extend({
+        attrs: {
+            triggerType: 'blur',
+            checkOnSubmit: true,    // 是否在表单提交前进行校验，默认进行校验。
+            stopOnError: false,     // 校验整个表单时，遇到错误时是否停止校验其他表单项。
+            autoSubmit: true,       // When all validation passed, submit the form automatically.
+            checkNull: true,        // 除提交前的校验外，input的值为空时是否校验。
+            onItemValidate: setterConfig,
+            onItemValidated: setterConfig,
+            onFormValidate: setterConfig,
+            onFormValidated: setterConfig,
+            // 此函数用来定义如何自动获取校验项对应的 display 字段。
+            displayHelper: function (item) {
+                var labeltext, name;
+                var id = item.element.attr('id');
+                if (id) {
+                    labeltext = $('label[for="' + id + '"]').text();
+                    if (labeltext) {
+                        labeltext = labeltext.replace(/^[\*\s\:\：]*/, '').replace(/[\*\s\:\：]*$/, '');
+                    }
+                }
+                name = item.element.attr('name');
+                return labeltext || name;
+            },
+            showMessage: setterConfig, // specify how to display error messages
+            hideMessage: setterConfig, // specify how to hide error messages
+            autoFocus: true,           // Automatically focus at the first element failed validation if true.
+            failSilently: false,       // If set to true and the given element passed to addItem does not exist, just ignore.
+            skipHidden: false          // 如果 DOM 隐藏是否进行校验
+        },
+
+        setup: function () {
+            // Validation will be executed according to configurations stored in items.
+            var self = this;
+
+            self.items = [];
+
+            // 外层容器是否是 form 元素
+            if (self.element.is("form")) {
+                // 记录 form 原来的 novalidate 的值，因为初始化时需要设置 novalidate 的值，destroy 的时候需要恢复。
+                self._novalidate_old = self.element.attr('novalidate');
+
+                // disable html5 form validation
+                // see: http://bugs.jquery.com/ticket/12577
+                try {
+                    self.element.attr('novalidate', 'novalidate');
+                } catch (e) {}
+
+                //If checkOnSubmit is true, then bind submit event to execute validation.
+                if (self.get('checkOnSubmit')) {
+                    self.element.on("submit.validator", function (e) {
+                        e.preventDefault();
+                        self.execute(function (err) {
+                            !err && self.get('autoSubmit') && self.element.get(0).submit();
+                        });
+                    });
+                }
+            }
+
+            // 当每项校验之后, 根据返回的 err 状态, 显示或隐藏提示信息
+            self.on('itemValidated', function (err, message, element, event) {
+                this.query(element).get(err?'showMessage':'hideMessage').call(this, message, element, event);
+            });
+
+            validators.push(self);
+        },
+
+        Statics: $.extend({helper: utils.helper}, Rule, {
+            autoRender: function (cfg) {
+
+                var validator = new this(cfg);
+
+                $('input, textarea, select', validator.element).each(function (i, input) {
+
+                    input = $(input);
+                    var type = input.attr('type');
+
+                    if (type == 'button' || type == 'submit' || type == 'reset') {
+                        return true;
+                    }
+
+                    var options = {};
+
+                    if (type == 'radio' || type == 'checkbox') {
+                        options.element = $('[type=' + type + '][name=' + input.attr('name') + ']', validator.element);
+                    } else {
+                        options.element = input;
+                    }
+
+
+                    if (!validator.query(options.element)) {
+
+                        var obj = utils.parseDom(input);
+
+                        if (!obj.rule) return true;
+
+                        $.extend(options, obj);
+
+                        validator.addItem(options);
+                    }
+                });
+            },
+
+            query: function (selector) {
+                return Widget.query(selector);
+            },
+
+            // TODO 校验单项静态方法的实现需要优化
+            validate: function (options) {
+                var element = $(options.element);
+                var validator = new Core({
+                    element: element.parents()
+                });
+
+                validator.addItem(options);
+                validator.query(element).execute();
+                validator.destroy();
+            }
+        }),
+
+
+        addItem: function (cfg) {
+            var self = this;
+            if ($.isArray(cfg)) {
+                $.each(cfg, function (i, v) {
+                    self.addItem(v);
+                });
+                return this;
+            }
+
+            cfg = $.extend({
+                triggerType: self.get('triggerType'),
+                checkNull: self.get('checkNull'),
+                displayHelper: self.get('displayHelper'),
+                showMessage: self.get('showMessage'),
+                hideMessage: self.get('hideMessage'),
+                failSilently: self.get('failSilently'),
+                skipHidden: self.get('skipHidden')
+            }, cfg);
+
+            // 当 item 初始化的 element 为 selector 字符串时
+            // 默认到 validator.element 下去找
+            if (typeof cfg.element === 'string') {
+                cfg.element = this.$(cfg.element);
+            }
+
+            if (!$(cfg.element).length) {
+                if (cfg.failSilently) {
+                    return self;
+                } else {
+                    throw new Error('element does not exist');
+                }
+            }
+            var item = new Item(cfg);
+
+            self.items.push(item);
+            // 关联 item 到当前 validator 对象
+            item._validator = self;
+
+            item.delegateEvents(item.get('triggerType'), function (e) {
+                if (!this.get('checkNull') && !this.element.val()) return;
+                this.execute(null, {event: e});
+            });
+
+            item.on('all', function (eventName) {
+                this.trigger.apply(this, [].slice.call(arguments));
+            }, self);
+
+            return self;
+        },
+
+        removeItem: function (selector) {
+            var self = this,
+                target = selector instanceof Item ? selector : self.query(selector);
+
+            if (target) {
+                target.get('hideMessage').call(self, null, target.element);
+                erase(target, self.items);
+                target.destroy();
+            }
+
+            return self;
+        },
+
+        execute: function (callback) {
+            var self = this,
+                results = [],
+                hasError = false,
+                firstElem = null;
+
+            // 在表单校验前, 隐藏所有校验项的错误提示
+            $.each(self.items, function (i, item) {
+                item.get('hideMessage').call(self, null, item.element);
+            });
+            self.trigger('formValidate', self.element);
+
+            async[self.get('stopOnError') ? "forEachSeries" : "forEach" ](self.items, function (item, cb) {  // iterator
+                item.execute(function (err, message, ele) {
+                    // 第一个校验错误的元素
+                    if (err && !hasError) {
+                        hasError = true;
+                        firstElem = ele;
+                    }
+                    results.push([].slice.call(arguments, 0));
+
+                    // Async doesn't allow any of tasks to fail, if you want the final callback executed after all tasks finished.
+                    // So pass none-error value to task callback instead of the real result.
+                    cb(self.get('stopOnError') ? err : null);
+
+                });
+            }, function () {  // complete callback
+                if (self.get('autoFocus') && hasError) {
+                    self.trigger('autoFocus', firstElem);
+                    firstElem.focus();
+                }
+
+                self.trigger('formValidated', hasError, results, self.element);
+                callback && callback(hasError, results, self.element);
+            });
+
+            return self;
+        },
+
+        destroy: function () {
+            var self = this,
+                len = self.items.length;
+
+            if (self.element.is("form")) {
+                try {
+                    if (self._novalidate_old == undefined)
+                        self.element.removeAttr('novalidate');
+                    else
+                        self.element.attr('novalidate', self._novalidate_old);
+                } catch (e) {
+                }
+
+                self.element.off('submit.validator');
+            }
+
+            for (var i = len - 1; i >= 0; i--) {
+                self.removeItem(self.items[i]);
+            }
+            erase(self, validators);
+
+            Core.superclass.destroy.call(this);
+        },
+
+        query: function (selector) {
+            return findItemBySelector(this.$(selector), this.items);
+
+            // 不使用 Widget.query 是因为, selector 有可能是重复, 选择第一个有可能不是属于
+            // 该组件的. 即使 再次使用 this.items 匹配, 也没法找到
+            /*var target = Widget.query(selector),
+                result = null;
+            $.each(this.items, function (i, item) {
+                if (item === target) {
+                    result = target;
+                    return false;
+                }
+            });
+            return result;*/
+        }
+    });
+
+    // 从数组中删除对应元素
+    function erase(target, array) {
+        for(var i=0; i<array.length; i++) {
+            if (target === array[i]) {
+                array.splice(i, 1);
+                return array;
+            }
+        }
+    }
+
+    function findItemBySelector(target, array) {
+        var ret;
+        $.each(array, function (i, item) {
+            if (target.get(0) === item.element.get(0)) {
+                ret = item;
+                return false;
+            }
+        });
+        return ret;
+    }
+
+    Validation.Core = Core;
+
+})(jQuery, (Hui.Validation = Hui.Validation || {}))
+
+
+!(function($) {
+
+  var Core = Hui.Validation.Core;
+
+  var Validator = Core.extend({
+
+    events: {
+      'mouseenter .{{attrs.inputClass}}': 'mouseenter',
+      'mouseleave .{{attrs.inputClass}}': 'mouseleave',
+      'mouseenter .{{attrs.textareaClass}}': 'mouseenter',
+      'mouseleave .{{attrs.textareaClass}}': 'mouseleave',
+      'focus .{{attrs.itemClass}} input,textarea,select': 'focus',
+      'blur .{{attrs.itemClass}} input,textarea,select': 'blur'
+    },
+
+    attrs: {
+      explainClass: 'ui-form-explain',
+      itemClass: 'ui-form-item',
+      itemHoverClass: 'ui-form-item-hover',
+      itemFocusClass: 'ui-form-item-focus',
+      itemErrorClass: 'ui-form-item-error',
+      inputClass: 'ui-input',
+      textareaClass: 'ui-textarea',
+
+      showMessage: function (message, element) {
+        this.getExplain(element).html(message);
+        this.getItem(element).addClass(this.get('itemErrorClass'));
+      },
+
+      hideMessage: function (message, element) {
+        this.getExplain(element).html(element.attr('data-explain') || ' ');
+        this.getItem(element).removeClass(this.get('itemErrorClass'));
+      }
+    },
+
+    setup: function () {
+      Validator.superclass.setup.call(this);
+
+      var that = this;
+
+      this.on('autoFocus', function (ele) {
+        that.set('autoFocusEle', ele);
+      })
+    },
+
+    addItem: function (cfg) {
+      Validator.superclass.addItem.apply(this, [].slice.call(arguments));
+      var item = this.query(cfg.element);
+      if (item) {
+        this._saveExplainMessage(item);
+      }
+      return this;
+    },
+
+    _saveExplainMessage: function (item) {
+      var that = this;
+      var ele = item.element;
+
+      var explain = ele.attr('data-explain');
+      // If explaining message is not specified, retrieve it from data-explain attribute of the target
+      // or from DOM element with class name of the value of explainClass attr.
+      // Explaining message cannot always retrieve from DOM element with class name of the value of explainClass
+      // attr because the initial state of form may contain error messages from server.
+      // ---
+      // Also, If explaining message is under ui-form-item-error className
+      // it could be considered to be a error message from server
+      // that should not be put into data-explain attribute
+      if (explain === undefined && !this.getItem(ele).hasClass(this.get('itemErrorClass'))) {
+        ele.attr('data-explain', this.getExplain(ele).html());
+      }
+    },
+
+    getExplain: function (ele) {
+      var item = this.getItem(ele);
+      var explain = item.find('.' + this.get('explainClass'));
+
+      if (explain.length == 0) {
+       explain = $('<div class="' + this.get('explainClass') + '"></div>').appendTo(item);
+      }
+
+      return explain;
+    },
+
+    getItem: function (ele) {
+      ele = $(ele);
+      var item = ele.parents('.' + this.get('itemClass'));
+
+      return item;
+    },
+
+    mouseenter: function (e) {
+      this.getItem(e.target).addClass(this.get('itemHoverClass'));
+    },
+
+    mouseleave: function (e) {
+      this.getItem(e.target).removeClass(this.get('itemHoverClass'));
+    },
+
+    focus: function (e) {
+      var target = e.target,
+          autoFocusEle = this.get('autoFocusEle');
+
+      if (autoFocusEle && autoFocusEle.has(target)) {
+        var that = this;
+        $(target).keyup(function (e) {
+          that.set('autoFocusEle', null);
+          that.focus({target: target});
+        });
+        return;
+      }
+      this.getItem(target).removeClass(this.get('itemErrorClass'));
+      this.getItem(target).addClass(this.get('itemFocusClass'));
+      this.getExplain(target).html($(target).attr('data-explain') || '');
+    },
+
+    blur: function (e) {
+      this.getItem(e.target).removeClass(this.get('itemFocusClass'));
+    }
+  });
+
+
+  Hui.Validator = Validator;
+
+})(jQuery)
+
+
+!(function($, AutoUtility) {
+
+  var Base = Hui.Base;
+
+  var lteIE9 = /\bMSIE [6789]\.0\b/.test(navigator.userAgent);
+  var specialKeyCodeMap = {
+    9: 'tab',
+    27: 'esc',
+    37: 'left',
+    39: 'right',
+    13: 'enter',
+    38: 'up',
+    40: 'down'
+  };
+
+  var Input = Base.extend({
+
+    attrs: {
+      element: {
+        value: null,
+        setter: function (val) {
+          return $(val);
+        }
+      },
+      query: null,
+      delay: 100
+    },
+
+    initialize: function () {
+      Input.superclass.initialize.apply(this, arguments);
+
+      // bind events
+      this._bindEvents();
+
+      // init query
+      this.set('query', this.getValue());
+    },
+
+    focus: function () {
+      this.get('element').focus();
+    },
+
+    getValue: function () {
+      return this.get('element').val();
+    },
+
+    setValue: function (val, silent) {
+      this.get('element').val(val);
+      !silent && this._change();
+    },
+
+    destroy: function () {
+      Input.superclass.destroy.call(this);
+    },
+
+    _bindEvents: function () {
+      var timer, input = this.get('element');
+
+      input.attr('autocomplete', 'off').on('focus.autocomplete', wrapFn(this._handleFocus, this)).on('blur.autocomplete', wrapFn(this._handleBlur, this)).on('keydown.autocomplete', wrapFn(this._handleKeydown, this));
+
+      // IE678 don't support input event
+      // IE 9 does not fire an input event when the user removes characters from input filled by keyboard, cut, or drag operations.
+      if (!lteIE9) {
+        input.on('input.autocomplete', wrapFn(this._change, this));
+      } else {
+        var that = this,
+            events = ['keydown.autocomplete', 'keypress.autocomplete', 'cut.autocomplete', 'paste.autocomplete'].join(' ');
+
+        input.on(events, wrapFn(function (e) {
+          if (specialKeyCodeMap[e.which]) return;
+
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            that._change.call(that, e);
+          }, this.get('delay'));
+        }, this));
+      }
+    },
+
+    _change: function () {
+      var newVal = this.getValue();
+      var oldVal = this.get('query');
+      var isSame = compare(oldVal, newVal);
+      var isSameExpectWhitespace = isSame ? (newVal.length !== oldVal.length) : false;
+
+      if (isSameExpectWhitespace) {
+        this.trigger('whitespaceChanged', oldVal);
+      }
+      if (!isSame) {
+        this.set('query', newVal);
+        this.trigger('queryChanged', newVal, oldVal);
+      }
+    },
+
+    _handleFocus: function (e) {
+      this.trigger('focus', e);
+    },
+
+    _handleBlur: function (e) {
+      this.trigger('blur', e);
+    },
+
+    _handleKeydown: function (e) {
+      var keyName = specialKeyCodeMap[e.which];
+      if (keyName) {
+        var eventKey = 'key' + ucFirst(keyName);
+        this.trigger(e.type = eventKey, e);
+      }
+    }
+  });
+
+  AutoUtility.Input = Input;
+
+  function wrapFn(fn, context) {
+    return function () {
+      fn.apply(context, arguments);
+    };
+  }
+
+  function compare(a, b) {
+    a = (a || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
+    b = (b || '').replace(/^\s*/g, '').replace(/\s{2,}/g, ' ');
+    return a === b;
+  }
+
+  function ucFirst(str) {
+    return str.charAt(0).toUpperCase() + str.substring(1);
+  }
+
+})(jQuery, (Hui.AutoUtility = Hui.AutoUtility || {}))
+
+
+!(function($, AutoUtility) {
+
+  var Filter = {
+    'default': function (data) {
+      return data;
+    },
+
+    'startsWith': function (data, query) {
+      query = query || '';
+      var result = [],
+          l = query.length,
+          reg = new RegExp('^' + escapeKeyword(query));
+
+      if (!l) return [];
+
+      $.each(data, function (index, item) {
+        var a, matchKeys = [item.value].concat(item.alias);
+
+        // 匹配 value 和 alias 中的
+        while (a = matchKeys.shift()) {
+          if (reg.test(a)) {
+            // 匹配和显示相同才有必要高亮
+            if (item.label === a) {
+              item.highlightIndex = [
+                [0, l]
+              ];
+            }
+            result.push(item);
+            break;
+          }
+        }
+      });
+      return result;
+    },
+
+
+    'stringMatch': function (data, query) {
+      query = query || '';
+      var result = [],
+          l = query.length;
+
+      if (!l) return [];
+
+      $.each(data, function (index, item) {
+        var a, matchKeys = [item.value].concat(item.alias);
+
+        // 匹配 value 和 alias 中的
+        while (a = matchKeys.shift()) {
+          if (a.indexOf(query) > -1) {
+            // 匹配和显示相同才有必要高亮
+            if (item.label === a) {
+              item.highlightIndex = stringMatch(a, query);
+            }
+            result.push(item);
+            break;
+          }
+        }
+      });
+      return result;
+    }
+  };
+
+  AutoUtility.Filter = Filter;
+
+  // 转义正则关键字
+  var keyword = /(\[|\[|\]|\^|\$|\||\(|\)|\{|\}|\+|\*|\?|\\)/g;
+
+  function escapeKeyword(str) {
+    return (str || '').replace(keyword, '\\$1');
+  }
+
+  function stringMatch(matchKey, query) {
+    var r = [],
+        a = matchKey.split('');
+    var queryIndex = 0,
+        q = query.split('');
+    for (var i = 0, l = a.length; i < l; i++) {
+      var v = a[i];
+      if (v === q[queryIndex]) {
+        if (queryIndex === q.length - 1) {
+          r.push([i - q.length + 1, i + 1]);
+          queryIndex = 0;
+          continue;
+        }
+        queryIndex++;
+      } else {
+        queryIndex = 0;
+      }
+    }
+    return r;
+  }
+
+})(jQuery, (Hui.AutoUtility = Hui.AutoUtility || {}))
+
+
+!(function($, AutoUtility) {
+
+  var Base = Hui.Base;
+
+  var DataSource = Base.extend({
+
+    attrs: {
+      source: null,
+      type: 'array'
+    },
+
+    initialize: function (config) {
+      DataSource.superclass.initialize.call(this, config);
+
+      // 每次发送请求会将 id 记录到 callbacks 中，返回后会从中删除
+      // 如果 abort 会清空 callbacks，之前的请求结果都不会执行
+      this.id = 0;
+      this.callbacks = [];
+
+      var source = this.get('source');
+      if (isString(source)) {
+        this.set('type', 'url');
+      } else if ($.isArray(source)) {
+        this.set('type', 'array');
+      } else if ($.isPlainObject(source)) {
+        this.set('type', 'object');
+      } else if ($.isFunction(source)) {
+        this.set('type', 'function');
+      } else {
+        throw new Error('Source Type Error');
+      }
+    },
+
+    getData: function (query) {
+      return this['_get' + capitalize(this.get('type') || '') + 'Data'](query);
+    },
+
+    abort: function () {
+      this.callbacks = [];
+    },
+
+    // 完成数据请求，getData => done
+    _done: function (data) {
+      this.trigger('data', data);
+    },
+
+    _getUrlData: function (query) {
+      var that = this,
+          options;
+      var obj = {
+        query: query ? encodeURIComponent(query) : '',
+        timestamp: new Date().getTime()
+      };
+      var url = this.get('source').replace(/\{\{(.*?)\}\}/g, function (all, match) {
+        return obj[match];
+      });
+
+      var callbackId = 'callback_' + this.id++;
+      this.callbacks.push(callbackId);
+
+      if (/^(https?:\/\/)/.test(url)) {
+        options = {
+          dataType: 'jsonp'
+        };
+      } else {
+        options = {
+          dataType: 'json'
+        };
+      }
+      $.ajax(url, options).success(function (data) {
+        if ($.inArray(callbackId, that.callbacks) > -1) {
+          delete that.callbacks[callbackId];
+          that._done(data);
+        }
+      }).error(function () {
+        if ($.inArray(callbackId, that.callbacks) > -1) {
+          delete that.callbacks[callbackId];
+          that._done({});
+        }
+      });
+    },
+
+    _getArrayData: function () {
+      var source = this.get('source');
+      this._done(source);
+      return source;
+    },
+
+    _getObjectData: function () {
+      var source = this.get('source');
+      this._done(source);
+      return source;
+    },
+
+    _getFunctionData: function (query) {
+      var that = this,
+          func = this.get('source');
+
+      // 如果返回 false 可阻止执行
+      var data = func.call(this, query, done);
+      if (data) {
+        this._done(data);
+      }
+
+      function done(data) {
+        that._done(data);
+      }
+    }
+  });
+
+  AutoUtility.DataSource = DataSource;
+
+  function isString(str) {
+    return Object.prototype.toString.call(str) === '[object String]';
+  }
+
+  function capitalize(str) {
+    return str.replace(/^([a-z])/, function (f, m) {
+      return m.toUpperCase();
+    });
+  }
+
+})(jQuery, (Hui.AutoUtility = Hui.AutoUtility || {}))
+
+
+!(function($) {
+
+  var Overlay = Hui.Overlay;
+  var Templatable = Hui.Templatable;
+  var DataSource = Hui.AutoUtility.DataSource;
+  var Filter = Hui.AutoUtility.Filter;
+  var Input = Hui.AutoUtility.Input;
+
+  var IE678 = /\bMSIE [678]\.0\b/.test(navigator.userAgent);
+
+  var template = '<div class="{{classPrefix}}">\
+                    <div class="{{classPrefix}}-content">\
+                      {{> header}}\
+                      <ul data-role="items">\
+                      {{#each items}}\
+                        <li data-role="item" class="{{../classPrefix}}-item">\
+                          {{#include parent=.. }}{{> html}}{{/include}}\
+                        </li>\
+                      {{/each}}\
+                      </ul>\
+                      {{> footer}}\
+                    </div>\
+                  </div>';
+
+  var AutoComplete = Overlay.extend({
+
+    Implements: Templatable,
+
+    attrs: {
+      // 触发元素
+      trigger: null,
+      classPrefix: 'ui-select',
+      align: {
+        baseXY: [0, '100%']
+      },
+      submitOnEnter: true,
+      // 回车是否会提交表单
+      dataSource: { //数据源，支持 Array, URL, Object, Function
+        value: [],
+        getter: function (val) {
+          var that = this;
+          if ($.isFunction(val)) {
+            return function () {
+              return val.apply(that, arguments);
+            };
+          }
+          return val;
+        }
+      },
+      locator: 'data',
+      // 输出过滤
+      filter: null,
+      disabled: false,
+      selectFirst: false,
+      delay: 100,
+      // 以下为模板相关
+      model: {
+        value: {
+          items: []
+        },
+        getter: function (val) {
+          val.classPrefix || (val.classPrefix = this.get('classPrefix'));
+          return val;
+        }
+      },
+      template: template,
+      footer: '',
+      header: '',
+      html: '{{{label}}}',
+      // 以下仅为组件使用
+      selectedIndex: null,
+      data: []
+    },
+
+    events: {
+      'mousedown [data-role=items]': '_handleMouseDown',
+      'click [data-role=item]': '_handleSelection',
+      'mouseenter [data-role=item]': '_handleMouseMove',
+      'mouseleave [data-role=item]': '_handleMouseMove'
+    },
+
+    templateHelpers: {
+      // 将匹配的高亮文字加上 hl 的样式
+      highlightItem: highlightItem,
+      include: include
+    },
+
+    parseElement: function () {
+      var that = this;
+      this.templatePartials || (this.templatePartials = {});
+      $.each(['header', 'footer', 'html'], function (index, item) {
+        that.templatePartials[item] = that.get(item);
+      });
+      AutoComplete.superclass.parseElement.call(this);
+    },
+
+    setup: function () {
+      AutoComplete.superclass.setup.call(this);
+
+      this._isOpen = false;
+      this._initInput(); // 初始化输入框
+      this._initDataSource(); // 初始化数据源
+      this._initFilter(); // 初始化过滤器
+      this._bindHandle(); // 绑定事件
+      this._blurHide([$(this.get('trigger'))]);
+      this._tweakAlignDefaultValue();
+
+      this.on('indexChanged', function (index) {
+        // scroll current item into view
+        //this.currentItem.scrollIntoView();
+        var containerHeight = parseInt(this.get('height'), 10);
+        if (!containerHeight) return;
+
+        var itemHeight = this.items.parent().height() / this.items.length,
+            itemTop = Math.max(0, itemHeight * (index + 1) - containerHeight);
+        this.element.children().scrollTop(itemTop);
+      });
+    },
+
+    show: function () {
+      this._isOpen = true;
+      // 无数据则不显示
+      if (this._isEmpty()) return;
+      AutoComplete.superclass.show.call(this);
+    },
+
+    hide: function () {
+      // 隐藏的时候取消请求或回调
+      if (this._timeout) clearTimeout(this._timeout);
+      this.dataSource.abort();
+      this._hide();
+    },
+
+    destroy: function () {
+      this._clear();
+      if (this.input) {
+        this.input.destroy();
+        this.input = null;
+      }
+      AutoComplete.superclass.destroy.call(this);
+    },
+
+
+    // Public Methods
+    // --------------
+    selectItem: function (index) {
+      if (this.items) {
+        if (index && this.items.length > index && index >= -1) {
+          this.set('selectedIndex', index);
+        }
+        this._handleSelection();
+      }
+    },
+
+    setInputValue: function (val) {
+      this.input.setValue(val);
+    },
+
+    // Private Methods
+    // ---------------
+
+    // 数据源返回，过滤数据
+    _filterData: function (data) {
+      var filter = this.get('filter'),
+          locator = this.get('locator');
+
+      // 获取目标数据
+      data = locateResult(locator, data);
+
+      // 进行过滤
+      data = filter.call(this, normalize(data), this.input.get('query'));
+
+      this.set('data', data);
+    },
+
+    // 通过数据渲染模板
+    _onRenderData: function (data) {
+      data || (data = []);
+
+      // 渲染下拉
+      this.set('model', {
+        items: data,
+        query: this.input.get('query'),
+        length: data.length
+      });
+
+      this.renderPartial();
+
+      // 初始化下拉的状态
+      this.items = this.$('[data-role=items]').children();
+
+      if (this.get('selectFirst')) {
+        this.set('selectedIndex', 0);
+      }
+
+      // 选中后会修改 input 的值并触发下一次渲染，但第二次渲染的结果不应该显示出来。
+      this._isOpen && this.show();
+    },
+
+    // 键盘控制上下移动
+    _onRenderSelectedIndex: function (index) {
+      var hoverClass = this.get('classPrefix') + '-item-hover';
+      this.items && this.items.removeClass(hoverClass);
+
+      // -1 什么都不选
+      if (index === -1) return;
+
+      this.items.eq(index).addClass(hoverClass);
+      this.trigger('indexChanged', index, this.lastIndex);
+      this.lastIndex = index;
+    },
+
+    // 初始化
+    // ------------
+    _initDataSource: function () {
+      this.dataSource = new DataSource({
+        source: this.get('dataSource')
+      });
+    },
+
+    _initInput: function () {
+      this.input = new Input({
+        element: this.get('trigger'),
+        delay: this.get('delay')
+      });
+    },
+
+    _initFilter: function () {
+      var filter = this.get('filter');
+      filter = initFilter(filter, this.dataSource);
+      this.set('filter', filter);
+    },
+
+    // 事件绑定
+    // ------------
+    _bindHandle: function () {
+      this.dataSource.on('data', this._filterData, this);
+
+      this.input.on('blur', this.hide, this).on('focus', this._handleFocus, this).on('keyEnter', this._handleSelection, this).on('keyEsc', this.hide, this).on('keyUp keyDown', this.show, this).on('keyUp keyDown', this._handleStep, this).on('queryChanged', this._clear, this).on('queryChanged', this._hide, this).on('queryChanged', this._handleQueryChange, this).on('queryChanged', this.show, this);
+
+      this.after('hide', function () {
+        this.set('selectedIndex', -1);
+      });
+
+      // 选中后隐藏浮层
+      this.on('itemSelected', function () {
+        this._hide();
+      });
+    },
+
+    // 选中的处理器
+    // 1. 鼠标点击触发
+    // 2. 回车触发
+    // 3. selectItem 触发
+    _handleSelection: function (e) {
+      if (!this.items) return;
+      var isMouse = e ? e.type === 'click' : false;
+      var index = isMouse ? this.items.index(e.currentTarget) : this.get('selectedIndex');
+      var item = this.items.eq(index);
+      var data = this.get('data')[index];
+
+      if (index >= 0 && item && data) {
+        this.input.setValue(data.label);
+        this.set('selectedIndex', index, {
+          silent: true
+        });
+
+        // 是否阻止回车提交表单
+        if (e && !isMouse && !this.get('submitOnEnter')) e.preventDefault();
+
+        this.trigger('itemSelected', data, item);
+      }
+    },
+
+    _handleFocus: function () {
+      this._isOpen = true;
+    },
+
+    _handleMouseMove: function (e) {
+      var hoverClass = this.get('classPrefix') + '-item-hover';
+      this.items.removeClass(hoverClass);
+      if (e.type === 'mouseenter') {
+        var index = this.items.index(e.currentTarget);
+        this.set('selectedIndex', index, {
+          silent: true
+        });
+        this.items.eq(index).addClass(hoverClass);
+      }
+    },
+
+    _handleMouseDown: function (e) {
+      if (IE678) {
+        var trigger = this.input.get('element')[0];
+        trigger.onbeforedeactivate = function () {
+          window.event.returnValue = false;
+          trigger.onbeforedeactivate = null;
+        };
+      }
+      e.preventDefault();
+    },
+
+    _handleStep: function (e) {
+      e.preventDefault();
+      this.get('visible') && this._step(e.type === 'keyUp' ? -1 : 1);
+    },
+
+    _handleQueryChange: function (val, prev) {
+      if (this.get('disabled')) return;
+
+      this.dataSource.abort();
+      this.dataSource.getData(val);
+    },
+
+    // 选项上下移动
+    _step: function (direction) {
+      var currentIndex = this.get('selectedIndex');
+      if (direction === -1) { // 反向
+        if (currentIndex > -1) {
+          this.set('selectedIndex', currentIndex - 1);
+        } else {
+          this.set('selectedIndex', this.items.length - 1);
+        }
+      } else if (direction === 1) { // 正向
+        if (currentIndex < this.items.length - 1) {
+          this.set('selectedIndex', currentIndex + 1);
+        } else {
+          this.set('selectedIndex', -1);
+        }
+      }
+    },
+
+    _clear: function () {
+      this.$('[data-role=items]').empty();
+      this.set('selectedIndex', -1);
+      delete this.items;
+      delete this.lastIndex;
+    },
+
+    _hide: function () {
+      this._isOpen = false;
+      AutoComplete.superclass.hide.call(this);
+    },
+
+    _isEmpty: function () {
+      var data = this.get('data');
+      return !(data && data.length > 0);
+    },
+
+    // 调整 align 属性的默认值
+    _tweakAlignDefaultValue: function () {
+      var align = this.get('align');
+      align.baseElement = this.get('trigger');
+      this.set('align', align);
+    }
+  });
+
+  Hui.AutoComplete = AutoComplete;
+
+  function isString(str) {
+    return Object.prototype.toString.call(str) === '[object String]';
+  }
+
+  function isObject(obj) {
+    return Object.prototype.toString.call(obj) === '[object Object]';
+  }
+
+  // 通过 locator 找到 data 中的某个属性的值
+  // 1. locator 支持 function，函数返回值为结果
+  // 2. locator 支持 string，而且支持点操作符寻址
+  //     data {
+  //       a: {
+  //         b: 'c'
+  //       }
+  //     }
+  //     locator 'a.b'
+  // 最后的返回值为 c
+
+  function locateResult(locator, data) {
+    if (locator) {
+      if ($.isFunction(locator)) {
+        return locator.call(this, data);
+      } else if (!$.isArray(data) && isString(locator)) {
+        var s = locator.split('.'),
+            p = data;
+        while (s.length) {
+          var v = s.shift();
+          if (!p[v]) {
+            break;
+          }
+          p = p[v];
+        }
+        return p;
+      }
+    }
+    return data;
+  }
+
+  // 标准格式，不匹配则忽略
+  //
+  //   {
+  //     label: '', 显示的字段
+  //     value: '', 匹配的字段
+  //     alias: []  其他匹配的字段
+  //   }
+
+  function normalize(data) {
+    var result = [];
+    $.each(data, function (index, item) {
+      if (isString(item)) {
+        result.push({
+          label: item,
+          value: item,
+          alias: []
+        });
+      } else if (isObject(item)) {
+        if (!item.value && !item.label) return;
+        item.value || (item.value = item.label);
+        item.label || (item.label = item.value);
+        item.alias || (item.alias = []);
+        result.push(item);
+      }
+    });
+    return result;
+  }
+
+  // 初始化 filter
+  // 支持的格式
+  //   1. null: 使用默认的 startsWith
+  //   2. string: 从 Filter 中找，如果不存在则用 default
+  //   3. function: 自定义
+
+  function initFilter(filter, dataSource) {
+    // 字符串
+    if (isString(filter)) {
+      // 从组件内置的 FILTER 获取
+      if (Filter[filter]) {
+        filter = Filter[filter];
+      } else {
+        filter = Filter['default'];
+      }
+    }
+    // 非函数为默认值
+    else if (!$.isFunction(filter)) {
+      // 异步请求的时候不需要过滤器
+      if (dataSource.get('type') === 'url') {
+        filter = Filter['default'];
+      } else {
+        filter = Filter['startsWith'];
+      }
+    }
+    return filter;
+  }
+
+  function include(options) {
+    var context = {};
+
+    mergeContext(this);
+    mergeContext(options.hash);
+    return options.fn(context);
+
+    function mergeContext(obj) {
+      for (var k in obj) context[k] = obj[k];
+    }
+  }
+
+  function highlightItem(label) {
+    var index = this.highlightIndex,
+        classPrefix = this.parent ? this.parent.classPrefix : '',
+        cursor = 0,
+        v = label || this.label || '',
+        h = '';
+    if ($.isArray(index)) {
+      for (var i = 0, l = index.length; i < l; i++) {
+        var j = index[i],
+            start, length;
+        if ($.isArray(j)) {
+          start = j[0];
+          length = j[1] - j[0];
+        } else {
+          start = j;
+          length = 1;
+        }
+
+        if (start > cursor) {
+          h += v.substring(cursor, start);
+        }
+        if (start < v.length) {
+          var className = classPrefix ? ('class="' + classPrefix + '-item-hl"') : '';
+          h += '<span ' + className + '>' + v.substr(start, length) + '</span>';
+        }
+        cursor = start + length;
+        if (cursor >= v.length) {
+          break;
+        }
+      }
+      if (v.length > cursor) {
+        h += v.substring(cursor, v.length);
+      }
+      return h;
+    }
+    return v;
+  }
+
+})(jQuery)
