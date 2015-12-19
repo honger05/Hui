@@ -1,0 +1,40 @@
+/* month */
+.ui-calendar-month {
+  border: none;
+  box-shadow: none;
+  border-collapse: separate;
+  *border-collapse: collapse;
+  border-spacing: 0;
+}
+table.ui-calendar-month tr {
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background: #fff;
+}
+.ui-calendar-month .ui-calendar-month-column td {
+  width: 79px;
+  height: 36px;
+  line-height: 36px;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+}
+.ui-calendar-month .ui-calendar-month-column td:hover {
+  cursor: pointer;
+  background-color: #FFDEB8;
+}
+.ui-calendar-month .ui-calendar-month-column td.focused-element {
+  color: #fff;
+  background: #f57403;
+}
+.ui-calendar-month .ui-calendar-month-column td.disabled-element {
+  background: #e2e2e2;
+  color: #c3c3c3;
+}
+.ui-calendar-month .ui-calendar-month-column td.disabled-element:hover {
+  border-color: #fff;
+}

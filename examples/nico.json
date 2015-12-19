@@ -8,7 +8,8 @@
 	    {"link": "dialog/index.html", "title": "dialog"},
         {"link": "switchable/index.html", "title": "switchable"},
         {"link": "validator/index.html", "title": "validator"},
-        {"link": "autocomplete/index.html", "title": "autocomplete"}
+        {"link": "autocomplete/index.html", "title": "autocomplete"},
+        {"link": "calendar/index.html", "title": "calendar"}
 	  ],
 	  "footer": "Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.",
     "writers": [

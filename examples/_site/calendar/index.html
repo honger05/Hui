@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>基本用法</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="../autocomplete/">autocomplete</a>
+          <a href="./">calendar</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">基本用法</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<p><link rel="stylesheet" href="../dist/asset/alice/calendar.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/lib/moment/moment.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+<p><a href="./date-column.html">date-column</a>
+<a href="./month-column.html">month-column</a>
+<a href="./year-column.html">year-column</a></p>
+<h2 id="there-is-nothing-to-do">There is nothing to do</h2><p>最简示例，没有任何特殊要求：</p>
+<div class="nico-insert-code"><input id="date-nothing" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-nothing"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>var Calendar = Hui.Calendar;
+new Calendar({trigger: '#date-nothing'});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> Calendar = Hui.Calendar;
+<span class="keyword">new</span> Calendar({trigger: <span class="string">'#date-nothing'</span>});</code></pre></div><h2 id="set-language-later">Set language later</h2><p>你也可以自己传入语言：</p>
+<div class="nico-insert-code"><input id="date-lang" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-lang"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>var lang = {
+    'Su': '日', 'Mo': '月', 'Tu': '火', 'We': '水', 'Th': '木',
+    'Fr': '金', 'Sa': '土',
+    'Jan': '1月', 'Feb': '2月', 'Mar': '3月', 'Apr': '4月',
+    'May': '5月', 'Jun': '6月', 'Jul': '7月', 'Aug': '8月',
+    'Sep': '9月', 'Oct': '10月', 'Nov': '11月', 'Dec': '12月'
+};
+new Calendar({
+    trigger: '#date-lang',
+    lang: lang,
+    align: {
+      selfXY: [0, 0],
+      baseElement: '#date-lang',
+      baseXY: [0, '100%+20']
+    }
+});</script><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> lang = {
+    <span class="string">'Su'</span>: <span class="string">'日'</span>, <span class="string">'Mo'</span>: <span class="string">'月'</span>, <span class="string">'Tu'</span>: <span class="string">'火'</span>, <span class="string">'We'</span>: <span class="string">'水'</span>, <span class="string">'Th'</span>: <span class="string">'木'</span>,
+    <span class="string">'Fr'</span>: <span class="string">'金'</span>, <span class="string">'Sa'</span>: <span class="string">'土'</span>,
+    <span class="string">'Jan'</span>: <span class="string">'1月'</span>, <span class="string">'Feb'</span>: <span class="string">'2月'</span>, <span class="string">'Mar'</span>: <span class="string">'3月'</span>, <span class="string">'Apr'</span>: <span class="string">'4月'</span>,
+    <span class="string">'May'</span>: <span class="string">'5月'</span>, <span class="string">'Jun'</span>: <span class="string">'6月'</span>, <span class="string">'Jul'</span>: <span class="string">'7月'</span>, <span class="string">'Aug'</span>: <span class="string">'8月'</span>,
+    <span class="string">'Sep'</span>: <span class="string">'9月'</span>, <span class="string">'Oct'</span>: <span class="string">'10月'</span>, <span class="string">'Nov'</span>: <span class="string">'11月'</span>, <span class="string">'Dec'</span>: <span class="string">'12月'</span>
+};
+<span class="keyword">new</span> Calendar({
+    trigger: <span class="string">'#date-lang'</span>,
+    lang: lang,
+    align: {
+      selfXY: [<span class="number">0</span>, <span class="number">0</span>],
+      baseElement: <span class="string">'#date-lang'</span>,
+      baseXY: [<span class="number">0</span>, <span class="string">'100%+20'</span>]
+    }
+});</code></pre></div><h2 id="you-should-focus-on-me">You should focus on me</h2><p>设定初始值，比如初始值为世界末日：</p>
+<div class="nico-insert-code"><input id="date-focus-1" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-focus-1"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>    new Calendar({trigger: '#date-focus-1', focus: '2012-12-12'});</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({trigger: <span class="string">'#date-focus-1'</span>, focus: <span class="string">'2012-12-12'</span>});</code></pre></div><p>另外，如果 <code>input</code> 框中有值，会将此值做为初始值：</p>
+<div class="nico-insert-code"><input id="date-focus-2" type="text" value="2012-12-25" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-focus-2"</span> <span class="attribute">type</span>=<span class="value">"text"</span> <span class="attribute">value</span>=<span class="value">"2012-12-25"</span> /&gt;</span></code></pre></div><script>    new Calendar({trigger: '#date-focus-2'});</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({trigger: <span class="string">'#date-focus-2'</span>});</code></pre></div><h2 id="you-can-39-t-select-this-date">You can&#39;t select this date</h2><p>比如只能选择 2012-12-06 到 2012-12-20 之间的日期：</p>
+<div class="nico-insert-code"><input id="date-disable-1" type="text" value="2012-12-08" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-disable-1"</span> <span class="attribute">type</span>=<span class="value">"text"</span> <span class="attribute">value</span>=<span class="value">"2012-12-08"</span> /&gt;</span></code></pre></div><script>    new Calendar({
+        trigger: '#date-disable-1',
+        range: ['2012-12-06', '2012-12-20']
+    });</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({
+        trigger: <span class="string">'#date-disable-1'</span>,
+        range: [<span class="string">'2012-12-06'</span>, <span class="string">'2012-12-20'</span>]
+    });</code></pre></div><p>比如只能选择 2012-12-25 之前的日期：</p>
+<div class="nico-insert-code"><input id="date-disable-2" type="text" value="2012-12-08" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-disable-2"</span> <span class="attribute">type</span>=<span class="value">"text"</span> <span class="attribute">value</span>=<span class="value">"2012-12-08"</span> /&gt;</span></code></pre></div><script>    new Calendar({
+        trigger: '#date-disable-2',
+        range: [null, '2012-12-25']
+    });</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({
+        trigger: <span class="string">'#date-disable-2'</span>,
+        range: [<span class="literal">null</span>, <span class="string">'2012-12-25'</span>]
+    });</code></pre></div><p>比如不能选择周二的日期：</p>
+<div class="nico-insert-code"><input id="date-disable-3" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-disable-3"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>    new Calendar({
+        trigger: '#date-disable-3',
+        range: function(date) {
+            if (date.day) {
+                return date.day() != 2;
+            }
+            return true;
+        }
+    });</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({
+        trigger: <span class="string">'#date-disable-3'</span>,
+        range: <span class="function"><span class="keyword">function</span><span class="params">(date)</span> {</span>
+            <span class="keyword">if</span> (date.day) {
+                <span class="keyword">return</span> date.day() != <span class="number">2</span>;
+            }
+            <span class="keyword">return</span> <span class="literal">true</span>;
+        }
+    });</code></pre></div><h2 id="format-of-ouput">Format of ouput</h2><p>默认的输入输出格式为 <code>YYYY-MM-DD</code>，你可以设置为任何自己想要的格式，比如：
+<code>MM/DD/YYYY</code>。</p>
+<div class="nico-insert-code"><input id="date-format" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-format"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>    new Calendar({trigger: '#date-format', format: 'MM/DD/YYYY'});</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({trigger: <span class="string">'#date-format'</span>, format: <span class="string">'MM/DD/YYYY'</span>});</code></pre></div><h2 id="day-of-the-week">Day of the week</h2><p>默认一周的开始为周日，你可以设置为其它的星期，比如周三。</p>
+<div class="nico-insert-code"><input id="date-startday" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-startday"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>    // new Calendar({trigger: '#date-startday', startDay: 2});
+    // new Calendar({trigger: '#date-startday', startDay: 'Wed'});
+    new Calendar({trigger: '#date-startday', startDay: 'Wednesday'});</script><div class="highlight"><pre><code class="javascript">    <span class="comment">// new Calendar({trigger: '#date-startday', startDay: 2});</span>
+    <span class="comment">// new Calendar({trigger: '#date-startday', startDay: 'Wed'});</span>
+    <span class="keyword">new</span> Calendar({trigger: <span class="string">'#date-startday'</span>, startDay: <span class="string">'Wednesday'</span>});</code></pre></div><h2 id="don-39-t-be-smart">Don&#39;t be smart</h2><p>当用户选择了日期后，日历会自动隐藏。也许这并不是你想要的。</p>
+<div class="nico-insert-code"><input id="date-not-hide" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-not-hide"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>    new Calendar({trigger: '#date-not-hide', hideOnSelect: false});</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({trigger: <span class="string">'#date-not-hide'</span>, hideOnSelect: <span class="literal">false</span>});</code></pre></div><h2 id="it-39-s-too-complicated">It&#39;s too complicated</h2><p>输入框不是触发点。</p>
+<div class="nico-insert-code"><input id="date-output" type="text" />
+<a id="date-trigger" href="javascript:;">点这里出现日历</a></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"date-output"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span>
+<span class="tag">&lt;<span class="title">a</span> <span class="attribute">id</span>=<span class="value">"date-trigger"</span> <span class="attribute">href</span>=<span class="value">"javascript:;"</span>&gt;</span>点这里出现日历<span class="tag">&lt;/<span class="title">a</span>&gt;</span></code></pre></div><script>    new Calendar({trigger: '#date-trigger', output: "#date-output"});</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({trigger: <span class="string">'#date-trigger'</span>, output: <span class="string">"#date-output"</span>});</code></pre></div><p>甚至都没有输入框。</p>
+<div class="nico-insert-code"><span id="date-output-2">这里显示日期</span>
+<a id="date-trigger-2" href="javascript:;">点这里出现日历</a></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">span</span> <span class="attribute">id</span>=<span class="value">"date-output-2"</span>&gt;</span>这里显示日期<span class="tag">&lt;/<span class="title">span</span>&gt;</span>
+<span class="tag">&lt;<span class="title">a</span> <span class="attribute">id</span>=<span class="value">"date-trigger-2"</span> <span class="attribute">href</span>=<span class="value">"javascript:;"</span>&gt;</span>点这里出现日历<span class="tag">&lt;/<span class="title">a</span>&gt;</span></code></pre></div><script>    new Calendar({trigger: '#date-trigger-2', output: '#date-output-2'});</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">new</span> Calendar({trigger: <span class="string">'#date-trigger-2'</span>, output: <span class="string">'#date-output-2'</span>});</code></pre></div><h2 id="double-calendar">Double Calendar</h2><div class="nico-insert-code"><input id="start-cal" type="text" />
+<input id="end-cal" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"start-cal"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span>
+<span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"end-cal"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>    var t1 = '2012-01-01';
+    var t2 = '2015-01-01';
+    var c1 = new Calendar({trigger: '#start-cal', range: [t1, null]})
+    var c2 = new Calendar({trigger: '#end-cal', range: [null, t2]})
+    console.log(c1.get('focus').format('YYYY-MM-DD'), c2.get('focus').format('YYYY-MM-DD'));
+
+    c1.on('selectDate', function(date) {
+        console.log(c1.get('focus').format('YYYY-MM-DD'), c2.get('focus').format('YYYY-MM-DD'));
+        c2.range([date, t2]);
+    });
+
+    c2.on('selectDate', function(date) {
+        c1.range([t1, date]);
+    });</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">var</span> t1 = <span class="string">'2012-01-01'</span>;
+    <span class="keyword">var</span> t2 = <span class="string">'2015-01-01'</span>;
+    <span class="keyword">var</span> c1 = <span class="keyword">new</span> Calendar({trigger: <span class="string">'#start-cal'</span>, range: [t1, <span class="literal">null</span>]})
+    <span class="keyword">var</span> c2 = <span class="keyword">new</span> Calendar({trigger: <span class="string">'#end-cal'</span>, range: [<span class="literal">null</span>, t2]})
+    console.log(c1.get(<span class="string">'focus'</span>).format(<span class="string">'YYYY-MM-DD'</span>), c2.get(<span class="string">'focus'</span>).format(<span class="string">'YYYY-MM-DD'</span>));
+
+    c1.on(<span class="string">'selectDate'</span>, <span class="function"><span class="keyword">function</span><span class="params">(date)</span> {</span>
+        console.log(c1.get(<span class="string">'focus'</span>).format(<span class="string">'YYYY-MM-DD'</span>), c2.get(<span class="string">'focus'</span>).format(<span class="string">'YYYY-MM-DD'</span>));
+        c2.range([date, t2]);
+    });
+
+    c2.on(<span class="string">'selectDate'</span>, <span class="function"><span class="keyword">function</span><span class="params">(date)</span> {</span>
+        c1.range([t1, date]);
+    });</code></pre></div><h2 id="实现一个年月历">实现一个年月历</h2><div class="nico-insert-code"><input id="year-month-cal" type="text" /></div><div class="highlight"><pre><code class="xml"><span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"year-month-cal"</span> <span class="attribute">type</span>=<span class="value">"text"</span> /&gt;</span></code></pre></div><script>    var cal = new Calendar({
+        trigger: "#year-month-cal",
+        events: {
+          'click [data-role=current-month]': function(ev) {
+            this.renderContainer('months');
+          },
+          'click [data-role=current-year]': function(ev) {
+            this.renderContainer('years');
+          }
+        }
+    }).on('show selectYear', function() {
+        this.renderContainer('months');
+    }).on('selectMonth', function(date) {
+        this.hide();
+        this.output(date.format('YYYY-MM'));
+    });</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">var</span> cal = <span class="keyword">new</span> Calendar({
+        trigger: <span class="string">"#year-month-cal"</span>,
+        events: {
+          <span class="string">'click [data-role=current-month]'</span>: <span class="function"><span class="keyword">function</span><span class="params">(ev)</span> {</span>
+            <span class="keyword">this</span>.renderContainer(<span class="string">'months'</span>);
+          },
+          <span class="string">'click [data-role=current-year]'</span>: <span class="function"><span class="keyword">function</span><span class="params">(ev)</span> {</span>
+            <span class="keyword">this</span>.renderContainer(<span class="string">'years'</span>);
+          }
+        }
+    }).on(<span class="string">'show selectYear'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        <span class="keyword">this</span>.renderContainer(<span class="string">'months'</span>);
+    }).on(<span class="string">'selectMonth'</span>, <span class="function"><span class="keyword">function</span><span class="params">(date)</span> {</span>
+        <span class="keyword">this</span>.hide();
+        <span class="keyword">this</span>.output(date.format(<span class="string">'YYYY-MM'</span>));
+    });</code></pre></div></div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>

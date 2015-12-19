@@ -1,0 +1,70 @@
+@import url('./css/date.css');
+@import url('./css/month.css');
+@import url('./css/year.css');
+
+.ui-calendar {
+  position: absolute;
+  font:14px/16px arial,'Hiragino Sans GB', sans-serif;
+  font-weight: bold;
+  background: #f9f9f9;
+  border-spacing: 0;
+  border: 1px solid #dadada;
+  box-shadow: 1px 1px 9px #ccc;
+  text-align: center;
+  width: 238px;
+  z-index: 10;
+  color: #666;
+}
+.ui-calendar .ui-calendar-date,
+.ui-calendar .ui-calendar-month,
+.ui-calendar .ui-calendar-year
+{
+  border: none;
+  box-shadow: none;
+  border-collapse: separate;
+  *border-collapse: collapse;
+  border-spacing: 0;
+  padding: 5px;
+}
+.ui-calendar .ui-calendar-pannel {
+  height: 30px;
+  line-height: 30px;
+  padding: 0;
+  margin: 0;
+  background: #f9f9f9;
+}
+.ui-calendar .ui-calendar-pannel:after,
+.ui-calendar .ui-calendar-pannel:before {
+  display: table;
+  line-height: 0;
+  content: '';
+}
+.ui-calendar .ui-calendar-pannel:after {
+  clear: both;
+}
+.ui-calendar .ui-calendar-control {
+  display: inline-block;
+  float: left;
+  width: 13%;
+  *display: inline;
+  *width: 20px;
+  *zoom: 1;
+  cursor: pointer;
+  font-weight: normal;
+}
+.ui-calendar .ui-calendar-control:hover {
+  background-color: #efefee;
+}
+.ui-calendar .ui-calendar-pannel .month,
+.ui-calendar .ui-calendar-pannel .year {
+  width: 24%;
+  font-weight: bold;
+}
+.ui-calendar-container{
+  border-bottom: 1px solid #dadada;
+  background-color: #fff;
+}
+
+.ui-calendar td.disabled-element {
+  cursor: not-allowed!important;
+}

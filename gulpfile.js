@@ -65,7 +65,22 @@ gulp.task('ui', function() {
 										'src/ui/autocomplete/input.js',
 										'src/ui/autocomplete/filter.js',
 										'src/ui/autocomplete/data-source.js',
-										'src/ui/autocomplete/autocomplete.js'
+										'src/ui/autocomplete/autocomplete.js',
+
+										// calendar
+										'src/ui/calendar/i18n/en.js',
+										'src/ui/calendar/i18n/fr.js',
+										'src/ui/calendar/i18n/ja.js',
+										'src/ui/calendar/i18n/zh-cn.js',
+										'src/ui/calendar/i18n/zh-tw.js',
+										'src/ui/calendar/base-calendar.js',
+										'src/ui/calendar/base-column.js',
+										'src/ui/calendar/calendar-tpl.js',
+										'src/ui/calendar/date-column.js',
+										'src/ui/calendar/month-column.js',
+										'src/ui/calendar/year-column.js',
+										'src/ui/calendar/double-calendar.js',
+										'src/ui/calendar/calendar.js'
 
 									])
 						 .pipe(concat('hui-debug.js'))

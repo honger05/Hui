@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta name="generator" content="nico 0.5.2">
+    <meta name="theme" content="one 0.2">
+    <title>年份表</title>
+    <link rel="stylesheet" href="../static/one.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="container">
+        <div class="brand">
+          <a class="home" href="../">Hui</a>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="../dialog/">dialog</a>
+          <a href="../switchable/">switchable</a>
+          <a href="../validator/">validator</a>
+          <a href="../autocomplete/">autocomplete</a>
+          <a href="./">calendar</a>
+        </div>
+      </div>
+    </div>
+    <div class="document yue">
+<div class="hentry" itemscope itemtype="http://schema.org/Article">
+  <h1 class="entry-title" itemprop="name">年份表</h1>
+  <div class="entry-content" itemprop="articleBody"><p><link rel="stylesheet" href="../dist/asset/alice/one.css"></p>
+<p><link rel="stylesheet" href="../dist/asset/alice/calendar.css"></p>
+<script src="../dist/lib/jquery/jquery.js"></script>
+<script src="../dist/lib/handlebars/handlebars.js"></script>
+<script src="../dist/lib/moment/moment.js"></script>
+<script src="../dist/core-debug.js"></script>
+<script src="../dist/hui-debug.js"></script>
+
+
+<style type="text/css">
+.ui-calendar-year {
+position: absolute;
+top: 160px;
+right: 10%;
+}
+</style>
+
+
+<script>    var year = new Hui.Calendar.YearColumn({range: [2012]});
+    year.show();</script><div class="highlight"><pre><code class="javascript">    <span class="keyword">var</span> year = <span class="keyword">new</span> Hui.Calendar.YearColumn({range: [<span class="number">2012</span>]});
+    year.show();</code></pre></div><h2 id="attributes">Attributes</h2><div class="highlight"><pre><code class="javascript"><span class="keyword">var</span> year = <span class="keyword">new</span> YearColumn({..attributes..});</code></pre></div><h3 id="focus-moment">focus <code>moment</code></h3><p>初始聚焦的年份，默认为今年。接受任何 moment 支持的参数，推荐使用 <code>YYYY-MM-DD</code> 格式。</p>
+<h3 id="format-string">format <code>string</code></h3><p>输出日期格式，默认为 <code>YYYY-MM-DD</code></p>
+<h3 id="range-array-function">range <code>array|function</code></h3><p>设置可选范围，可接受数组与函数。例如 [startYear, endYear]。</p>
+<p>推荐使用： <code>[&quot;2012&quot;, &quot;2014&quot;]</code> 这种写法，方便阅读。</p>
+<h2 id="methods">Methods</h2><p>方法列表。</p>
+<h3 id="prev">prev()</h3><p>焦点设置为上一年。</p>
+<h3 id="next">next()</h3><p>焦点设置为下一年。</p>
+<h3 id="focus-moment">focus(moment)</h3><p>焦点设置为指定时间。</p>
+<h3 id="inrange-date">inRange(date)</h3><p>指定时间是否可用。</p>
+<h3 id="refresh">refresh</h3><p>重新渲染。</p>
+<h2 id="events">Events</h2><p>事件</p>
+<h3 id="select-value-element">select(value, element)</h3><p>选择事件。</p>
+<h3 id="selectdisable-value-element">selectDisable(value, element)</h3><p>选择不可选的年份时。</p>
+</div>
+
+  <div class="entry-meta">
+    <time class="updated" datetime="2015-12-15T00:00:00.000Z" itemprop="dateModified">Tuesday, Dec 15th, 2015</time>
+  </div>
+</div>
+</div>
+    <div class="footer">
+ Nico was created by lepture, concept based on liquidluck. brought to you under the BSD license.
+      <p class="copyright">powered by <a href="http://lab.lepture.com/nico/">nico</a> 0.5.2</p>
+    </div>
+    <script src="../static/one.js"></script>
+  </body>
+</html>
